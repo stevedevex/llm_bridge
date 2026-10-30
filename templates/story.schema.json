@@ -1,0 +1,51 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "StoryHeader",
+  "description": "The header of a user story written from templates/story.md (story@1).",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["template", "id", "parent", "component", "title", "status", "order", "blocked_by", "contracts",
+               "implements", "labels"],
+  "properties": {
+    "template": { "const": "story@1", "description": "The template and its version." },
+    "id": {
+      "type": ["string", "null"],
+      "pattern": "^[A-Z][A-Z0-9]*-[0-9]+$",
+      "description": "The story's GitLab id once created; null until then."
+    },
+    "parent": {
+      "type": "string",
+      "pattern": "^[A-Z][A-Z0-9]*-[0-9]+$",
+      "description": "The requirement the story belongs to."
+    },
+    "component": { "type": "string", "minLength": 1, "description": "A component in architecture/components.yaml." },
+    "title": { "type": "string", "minLength": 1, "maxLength": 120, "description": "What the story delivers." },
+    "status": { "enum": ["draft", "approved", "created"], "description": "Where the story is." },
+    "order": { "type": "integer", "minimum": 1, "description": "The component's order in the catalog: contract first." },
+    "blocked_by": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": { "type": "string", "pattern": "^(S[0-9]+|[A-Z][A-Z0-9]*-[0-9]+)$" },
+      "description": "The stories it waits for: S<order> until they're created, then their GitLab ids."
+    },
+    "contracts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["contract", "change"],
+        "properties": {
+          "contract": { "type": "string", "minLength": 1, "description": "A contract in the catalog." },
+          "change": { "enum": ["additive", "breaking"], "description": "Whether every consumer keeps working." }
+        }
+      },
+      "description": "The contracts the story's component owns and changes."
+    },
+    "implements": {
+      "type": "array",
+      "items": { "type": "string", "pattern": "^[^@\\s]+(@[0-9a-f]{7,40})?$" },
+      "description": "The package files it carries out, by path in the BA repo, pinned to a commit in a git checkout."
+    },
+    "labels": { "type": "array", "items": { "type": "string" }, "description": "The component's labels." }
+  }
+}

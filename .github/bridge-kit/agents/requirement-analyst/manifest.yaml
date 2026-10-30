@@ -1,0 +1,46 @@
+# Governance for the Requirements Analyst. Copilot never reads this; bridge-kit's validator does.
+# The agent itself is .github/agents/requirement-analyst.agent.md, joined to this file by name.
+
+name: requirement-analyst
+version: 0.1.2
+status: experimental
+owner: ba-team
+layer: workflow
+domain: requirements
+
+inputs:
+  - name: work_item
+    type: work-item
+  - name: requirement
+    type: requirement                # a GitLab story, documents, or the BA's words
+
+outputs:
+  - path: work/*/breakdown.md
+    format: breakdown@1              # the requirement-analysis skill's
+  - path: work/*/evaluation-*.md
+    format: evaluation@1
+  - path: work/*/decisions.md
+    format: decisions@1
+
+stages: [R1, R2, R3]
+writes:
+  - work/*/inputs/**
+  - work/*/breakdown.md
+  - work/*/evaluation-*.md
+  - work/*/decisions.md
+  - .work/tmp/**
+
+skills:
+  requirement-analysis: ">=0.1.2"
+  gitlab-reading: ">=0.1"
+  document-reading: ">=0.1"
+
+requires:
+  clis: [python, uv]
+  repos: []
+
+validators:
+  - bridge-kit work status {inputs.work_item}
+
+approvals: []                        # writes only the work folder
+data: synthetic-only

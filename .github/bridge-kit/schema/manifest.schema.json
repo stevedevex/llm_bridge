@@ -1,0 +1,168 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Agent manifest",
+  "description": "Governance for one agent: what bridge-kit's checks read. Copilot never reads it; the agent file, joined to it by name, is what Copilot reads.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "name",
+    "version",
+    "status",
+    "owner",
+    "layer",
+    "domain",
+    "inputs",
+    "outputs",
+    "stages",
+    "writes",
+    "skills",
+    "requires",
+    "validators",
+    "approvals",
+    "data"
+  ],
+  "properties": {
+    "name": {
+      "type": "string",
+      "pattern": "^[a-z]+(-[a-z]+)*$",
+      "description": "The agent file's name"
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$"
+    },
+    "status": {
+      "enum": [
+        "experimental",
+        "stable",
+        "deprecated"
+      ]
+    },
+    "owner": {
+      "type": "string",
+      "minLength": 1
+    },
+    "layer": {
+      "enum": [
+        "workflow",
+        "specialist",
+        "checker"
+      ]
+    },
+    "domain": {
+      "type": "string",
+      "minLength": 1
+    },
+    "inputs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "name",
+          "type"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "pattern": "^[a-z]+(_[a-z]+)*$"
+          },
+          "type": {
+            "type": "string",
+            "minLength": 1
+          },
+          "required": {
+            "type": "boolean"
+          }
+        }
+      }
+    },
+    "outputs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "path"
+        ],
+        "properties": {
+          "path": {
+            "type": "string",
+            "minLength": 1
+          },
+          "format": {
+            "type": "string",
+            "pattern": "^[a-z]+(-[a-z]+)*(@\\d+)?$",
+            "description": "A format of the kit's, with its version (mapping-spec@1), or a kind of file (java, markdown)"
+          },
+          "repo": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
+    "stages": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "pattern": "^([RI][0-9]|bootstrapping)$"
+      }
+    },
+    "writes": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "skills": {
+      "type": "object",
+      "description": "Each skill it loads, with the versions it takes",
+      "additionalProperties": {
+        "type": "string",
+        "pattern": "^(>=|==|<=|<|>)\\d+(\\.\\d+){0,2}$"
+      }
+    },
+    "requires": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "clis": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "repos": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
+    "validators": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "approvals": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^[a-z]+(-[a-z]+)*$"
+      }
+    },
+    "data": {
+      "enum": [
+        "synthetic-only"
+      ]
+    }
+  }
+}

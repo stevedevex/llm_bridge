@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Unpacks one upstream spec jar exactly as the collector modules do: maven-dependency-plugin unpack in
+  generate-resources. Run by `bridge-kit spec resolve`, never by hand:
+
+  mvn -q -f .github/skills/spec-resolver/pom.xml generate-resources \
+    -Dspec.groupId=… -Dspec.artifactId=… -Dspec.version=… -Dspec.outputDirectory=…
+
+  Maven uses your own settings.xml, so Nexus access works as in any build. spec.repositoryUrl names the repository
+  when no mirror in settings.xml does.
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>com.example.bakit</groupId>
+  <artifactId>spec-resolver</artifactId>
+  <version>1</version>
+  <packaging>pom</packaging>
+
+  <properties>
+    <spec.groupId/>
+    <spec.artifactId/>
+    <spec.version/>
+    <spec.type>jar</spec.type>
+    <spec.classifier/>
+    <spec.outputDirectory>${project.build.directory}/spec</spec.outputDirectory>
+    <spec.repositoryUrl>https://nexus.invalid/repository/maven-public</spec.repositoryUrl>
+  </properties>
+
+  <repositories>
+    <repository>
+      <id>nexus</id>
+      <url>${spec.repositoryUrl}</url>
+    </repository>
+  </repositories>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-dependency-plugin</artifactId>
+        <version>3.8.1</version>
+        <executions>
+          <execution>
+            <id>unpack-spec</id>
+            <phase>generate-resources</phase>
+            <goals>
+              <goal>unpack</goal>
+            </goals>
+            <configuration>
+              <!-- Markers go with the unpacked spec, so a new output folder is always unpacked into and the skill
+                   folder stays clean. -->
+              <markersDirectory>${spec.outputDirectory}/.markers</markersDirectory>
+              <artifactItems>
+                <artifactItem>
+                  <groupId>${spec.groupId}</groupId>
+                  <artifactId>${spec.artifactId}</artifactId>
+                  <version>${spec.version}</version>
+                  <type>${spec.type}</type>
+                  <classifier>${spec.classifier}</classifier>
+                  <outputDirectory>${spec.outputDirectory}</outputDirectory>
+                </artifactItem>
+              </artifactItems>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+</project>

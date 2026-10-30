@@ -1,0 +1,14 @@
+# A glossary area: architecture/glossary/<area>.yaml, one file per business area. Each term as BAs say it, what it
+# means, the other words for it, and where it is in the internal model (its data elements, by payload path). The
+# agents look a term up with `bridge-kit knowledge term "<words>"`, and `bridge-kit knowledge check` checks each
+# term is defined once and each data element is a path of the model. Write data elements one a line: a path's []
+# inside [ ] would read as a list. The term below is made up.
+
+terms:
+  preferred contact channel:
+    definition: How the customer asked to be contacted.
+    synonyms: [contact preference, preferred channel]
+    data:
+      - CustomerRecord.contactPreference.channel
+    source: Optional. Where the definition comes from, e.g. a schema's description, a component's profile, a wiki page.
+    note: Optional. Anything a reader needs, e.g. who settled it.

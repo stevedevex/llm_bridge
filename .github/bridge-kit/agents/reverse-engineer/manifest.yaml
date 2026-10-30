@@ -1,0 +1,47 @@
+# Governance for the Reverse Engineer. Copilot never reads this; bridge-kit's validator does.
+# The agent itself is .github/agents/reverse-engineer.agent.md, joined to this file by name.
+
+name: reverse-engineer
+version: 0.5.2
+status: experimental
+owner: ba-team
+layer: specialist
+domain: mapping
+
+inputs:
+  - name: component
+    type: repo                       # a repo declared in bridge-kit.yaml
+  - name: path
+    type: path                       # inside that repo's checkout
+
+outputs:
+  - path: mappings/**/*.md
+    format: mapping-spec@1
+  - path: lookups/*.md
+    format: lookup@1
+  - path: assembly/*.md
+    format: assembly-spec@1
+  - path: work/reverse/**
+    format: markdown
+
+stages: [bootstrapping]
+writes:
+  - mappings/**
+  - lookups/**
+  - assembly/**
+  - work/reverse/**
+
+skills:
+  reverse-engineering: ">=0.5"
+  mapping-format: ">=0.4"
+  spec-resolver: ">=0.1"
+
+requires:
+  clis: [java, javap, mvn, python, uv]
+  repos: [service-a-java, shared-model]
+
+validators:
+  - bridge-kit validate mapping {outputs.mapping-spec} --model {repos.shared-model}/schemas
+
+approvals: []                        # writes only in the BA repo; never pushes, clones or calls GitLab
+data: synthetic-only

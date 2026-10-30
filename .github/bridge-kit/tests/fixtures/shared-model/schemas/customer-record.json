@@ -1,0 +1,64 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "CustomerRecord",
+  "description": "Everything collected for one request: the customer's identity, from the customer directory, their accounts, and one slot per source. The root of the collected payload.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "customerId",
+    "name",
+    "contactPreference",
+    "accounts"
+  ],
+  "properties": {
+    "customerId": {
+      "type": "string",
+      "minLength": 1,
+      "description": "The customer's identifier, the same in every upstream system."
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1,
+      "description": "The customer's full name, as they gave it."
+    },
+    "displayName": {
+      "type": "string",
+      "description": "The name the customer goes by, when it isn't their full name."
+    },
+    "segment": {
+      "type": "string",
+      "enum": [
+        "RETAIL",
+        "PRIVATE",
+        "BUSINESS"
+      ],
+      "description": "Which part of the bank serves the customer."
+    },
+    "birthDate": {
+      "type": "string",
+      "format": "date",
+      "description": "The customer's date of birth."
+    },
+    "residenceCountry": {
+      "type": "string",
+      "pattern": "^[A-Z]{2}$",
+      "description": "Country the customer lives in (ISO 3166-1 alpha-2)."
+    },
+    "phone": {
+      "type": "string",
+      "pattern": "^\\+[1-9][0-9]{6,14}$",
+      "description": "The customer's phone number, in E.164 (+441632960123)."
+    },
+    "contactPreference": {
+      "$ref": "contact-preference-slot.json",
+      "description": "What the customer API holds on how the customer wants to be contacted."
+    },
+    "accounts": {
+      "type": "array",
+      "items": {
+        "$ref": "account.json"
+      },
+      "description": "The customer's accounts; none when they hold none."
+    }
+  }
+}

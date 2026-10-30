@@ -1,0 +1,10 @@
+#!/bin/sh
+# The bridge-kit command line. Works from any directory: it finds the kit from its own location. It runs through
+# bridge-kit-run, so bridge-kit and every tool it starts (Maven, git) come from the environment bridge-kit.yaml declares. Its
+# Python packages are uv's, in the BA repo's .work/venvs/bridge-kit, so that environment is never changed.
+kit=$(cd "$(dirname "$0")/.." && pwd)
+UV_PROJECT_ENVIRONMENT=${UV_PROJECT_ENVIRONMENT:-$(cd "$kit/../.." && pwd)/.work/venvs/bridge-kit}
+export UV_PROJECT_ENVIRONMENT
+exec "$kit/bin/bridge-kit-run" sh -c '
+    command -v uv >/dev/null 2>&1 || { echo "bridge-kit: uv isn'\''t in the environment bridge-kit.yaml declares" >&2; exit 1; }
+    exec uv run --quiet --no-dev --project "$0" python -m bridge_kit "$@"' "$kit" "$@"

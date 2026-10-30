@@ -1,0 +1,67 @@
+#!/bin/sh
+# Runs a command inside the toolchain environment bridge-kit.yaml declares:
+# `micromamba run -n <name> <command>`, or the command as it is with `manager: none`. bridge-kit.local.yaml may name
+# another environment. The schema keeps environment.manager and environment.name plain words, written as a block,
+# so a few lines of awk read them; the kit's own loader checks the whole file.
+#
+#   bridge-kit-run <command> [<argument>...]
+#
+# It never creates, installs into or changes the environment. Exit 2 without a command; 1 when the environment
+# can't start, with one line saying why; otherwise the command's own exit code.
+
+kit=$(cd "$(dirname "$0")/.." && pwd)
+root=${BRIDGE_KIT_REPO_ROOT:-$(cd "$kit/../.." && pwd)}
+config="$root/.github/bridge-kit/bridge-kit.yaml"
+local_config="$root/.github/bridge-kit/bridge-kit.local.yaml"
+
+fail() {
+    echo "bridge-kit-run: $1" >&2
+    exit 1
+}
+
+# environment.<key> in a file: its value, without quotes or a trailing comment; nothing when it isn't there
+setting() {
+    [ -f "$1" ] || return 0
+    awk -v key="$2" '
+        /^[^ #]/ { inside = ($0 ~ /^environment:/); next }
+        inside && $0 ~ "^[ ]+" key ":" {
+            value = $0
+            sub("^[ ]+" key ":[ ]*", "", value)
+            sub("[ ]+#.*$", "", value)
+            gsub(/["\047]/, "", value)
+            print value
+            exit
+        }' "$1"
+}
+
+[ $# -gt 0 ] || { echo "usage: bridge-kit-run <command> [<argument>...]" >&2; exit 2; }
+[ -f "$config" ] ||
+    fail "no bridge-kit.yaml at $config: copy bridge-kit.example.yaml to it and set its environment first"
+
+manager=$(setting "$config" manager)
+name=$(setting "$config" name)
+if [ -f "$local_config" ]; then
+    if grep -Eq '^[ ]+allow_local_overrides:[ ]*false' "$config"; then
+        fail "bridge-kit.yaml turns overrides off, but there's a bridge-kit.local.yaml: remove it"
+    fi
+    name=$(setting "$local_config" name)
+    [ -n "$name" ] || name=$(setting "$config" name)
+fi
+
+case "$manager" in
+    none)
+        exec "$@" ;;
+    micromamba)
+        case "$name" in
+            ""|*[!A-Za-z0-9._-]*|[._-]*) fail "environment.name must be a plain word, not '$name'" ;;
+        esac
+        command -v micromamba >/dev/null 2>&1 ||
+            fail "micromamba isn't on the PATH, and bridge-kit.yaml says the tools come from its environment $name"
+        micromamba env list 2>/dev/null | awk -v name="$name" '$1 == name { found = 1 } END { exit !found }' ||
+            fail "there's no micromamba environment named $name: the environment's setup has to provide it"
+        exec micromamba run -n "$name" "$@" ;;
+    "")
+        fail "can't read environment.manager from $config: write it as a block, as bridge-kit.example.yaml does" ;;
+    *)
+        fail "environment.manager is $manager; it must be micromamba or none" ;;
+esac

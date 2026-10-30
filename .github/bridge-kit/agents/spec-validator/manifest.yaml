@@ -1,0 +1,36 @@
+# Governance for the Spec Validator. Copilot never reads this; bridge-kit's validator does.
+# The agent itself is .github/agents/spec-validator.agent.md, joined to this file by name.
+
+name: spec-validator
+version: 0.1.2
+status: experimental
+owner: ba-team
+layer: checker
+domain: requirements
+
+inputs:
+  - name: work_item
+    type: work-item
+  - name: package
+    type: requirement-package        # work/<id>/ and the files its stories implement
+
+outputs:
+  - path: work/*/validation-*.md
+    format: validation@1             # the package-review skill's report: verdict, findings, the package check
+
+stages: [R4]
+writes:
+  - work/*/validation-*.md           # its report only: a checker fixes nothing
+
+skills:
+  package-review: ">=0.1"
+
+requires:
+  clis: [python, uv]
+  repos: [shared-model]              # the model change, checked in the model's checkout
+
+validators:
+  - bridge-kit validate package {inputs.work_item}
+
+approvals: []                        # reads the package and writes its report in the BA repo, nothing else
+data: synthetic-only

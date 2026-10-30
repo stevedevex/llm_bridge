@@ -1,0 +1,71 @@
+# The components and their contracts: the map the requirement agents use to work out which components a
+# requirement touches and in what order their stories go. Built from the components'
+# profiles by `bridge-kit components build`; architects review its changes.
+
+components:
+  shared-model:
+    order: 1
+    repo: shared-model
+    stack: json-schema
+    owns: [model-input, model-output]
+    stories:
+      project: shared-model
+      labels: ['component::model']
+    note: Contract first, the schemas every other component builds on
+
+  service-a-java:
+    order: 2
+    repo: service-a-java
+    stack: java
+    owns: [service-a-api]
+    consumes: [model-input]
+    stories:
+      project: service-a-java
+      labels: ['component::collection']
+
+  service-b-python:
+    order: 3
+    stack: python
+    owns: [service-b-api]
+    consumes: [model-input, model-output]
+    defines_schemas: false
+    stories:
+      project: service-b-python
+      labels: ['component::summary']
+    note: Follows the shared model, never decides a schema
+
+  service-c-java:
+    order: 4
+    stack: java
+    owns: [service-c-api]
+    consumes: [service-a-api, service-b-api, model-output]
+    stories:
+      project: service-c-java
+      labels: ['component::business']
+
+  service-d-java:
+    order: 5
+    stack: java
+    owns: [service-d-api]
+    consumes: [service-c-api]
+    external: true
+    stories:
+      project: service-d-java
+      labels: ['component::presentation']
+    note: The API the UI and external clients call; its changes may affect external clients
+
+  ui-react:
+    order: 6
+    stack: react
+    consumes: [service-d-api]
+    stories:
+      project: ui-react
+      labels: ['component::ui']
+
+contracts:
+  model-input: {kind: json-schema, source: shared-model, root: CustomerRecord, note: the collected record}
+  model-output: {kind: json-schema, source: shared-model, root: CustomerSummary, note: the summary built from it}
+  service-a-api: {kind: openapi, source: service-a-java}
+  service-b-api: {kind: openapi, source: service-b-python}
+  service-c-api: {kind: openapi, source: service-c-java}
+  service-d-api: {kind: openapi, source: service-d-java, external: true}

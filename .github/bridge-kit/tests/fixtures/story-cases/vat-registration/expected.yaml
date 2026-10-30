@@ -1,0 +1,55 @@
+# Scored with bridge-kit eval stories (the Story Writer's plan, step 3). Paths are relative to this file.
+stories:
+  work_item: REQ-341
+  folder: work/REQ-341/stories       # where the stories must be, in the BA repo
+  expected:                          # one story per component; any other component's story counts against the set
+  - component: shared-model
+    blocked_by: []
+    contracts: {model-input: breaking, model-output: additive}
+    implements: [work/REQ-341/model-change.md]
+    facts:                           # each a list of words, any of which counts, in the story's body
+    - ['3.0.0']
+    - [vatRegistrations]
+    - [service-a-java, data collection]
+  - component: service-a-java
+    blocked_by: [shared-model]
+    contracts: {}
+    implements: [mappings/vat-registration/get-vat-registrations.md, assembly/customer-record.md]
+    facts:
+    - [GetVatRegistrations, VAT registration service]
+    - [LEI, lei]
+    - [fault, fails, failure]
+  - component: service-b-python
+    blocked_by: [shared-model]
+    contracts: {}
+    implements: []
+    facts:
+    - [vatRegistrations]
+    - ['3.0.0']
+    - [golden]
+    - [eval]
+  - component: service-c-java
+    blocked_by: [shared-model]
+    contracts: {service-c-api: additive}
+    implements: []
+    facts:
+    - [vatRegistrations]
+  - component: service-d-java
+    blocked_by: [service-c-java]
+    contracts: {service-d-api: additive}
+    implements: []
+    facts:
+    - [v2]
+    - [gateway]
+    - [external]
+  - component: ui-react
+    blocked_by: [service-d-java]
+    contracts: {}
+    implements: []
+    facts:
+    - [VAT]
+    - [loading]
+    - [no registration, not registered, isn't registered, no VAT]
+    - [error]
+  open_questions: []
+  fail_under: 80

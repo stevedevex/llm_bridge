@@ -1,0 +1,4 @@
+[project]
+name = "shared-model"
+version = "3.0.0"
+description = "The shared model's Pydantic models, for the tests: no build."

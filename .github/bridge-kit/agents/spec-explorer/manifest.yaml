@@ -1,0 +1,45 @@
+# Governance for the Spec Explorer. Copilot never reads this; bridge-kit's validator does.
+# The agent itself is .github/agents/spec-explorer.agent.md, joined to this file by name.
+
+name: spec-explorer
+version: 0.2.4
+status: experimental
+owner: ba-team
+layer: specialist
+domain: specs
+
+inputs:
+  - name: spec
+    type: spec                       # anything the spec resolver takes
+  - name: question
+    type: text                       # what the BA wants to know
+  - name: work_item
+    type: work-item
+    required: false
+
+outputs:
+  - path: work/*/inputs/spec-digest-*.md
+    format: spec-digest@1
+  - path: work/explore/spec-digest-*.md
+    format: spec-digest@1
+
+stages: [R1, R2]
+writes:
+  - work/*/inputs/spec-digest-*.md
+  - work/explore/**
+
+skills:
+  spec-exploring: ">=0.2"
+  spec-resolver: ">=0.1"
+  gitlab-reading: ">=0.1"
+  document-reading: ">=0.1"
+
+requires:
+  clis: [mvn, python, uv]
+  repos: []
+
+validators:
+  - bridge-kit validate digest {outputs.spec-digest}
+
+approvals: []                        # writes only in the BA repo's work folder
+data: synthetic-only

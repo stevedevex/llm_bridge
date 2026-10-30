@@ -1,0 +1,805 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "bridge-kit.schema.json",
+  "title": "bridge-kit.yaml",
+  "description": "bridge-kit's single configuration, in the BA repo's .github/bridge-kit: the toolchain, the workspace's repos, the shared model, GitLab, the spec repository, stored payloads, work items and rules.",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "bridge-kit": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "version": {
+          "type": "string",
+          "pattern": "^\\d+\\.\\d+\\.\\d+$"
+        },
+        "schema": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "version"
+      ]
+    },
+    "environment": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "manager": {
+          "enum": [
+            "micromamba",
+            "none"
+          ],
+          "description": "none: the tools are already on the PATH, as in CI"
+        },
+        "name": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$",
+          "description": "The micromamba environment"
+        },
+        "tools": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string",
+            "pattern": "^(\\*|(>=|<=|>|<|==)?\\s*\\d+(\\.\\d+)*(\\s*,\\s*(>=|<=|>|<|==)\\s*\\d+(\\.\\d+)*)*)$"
+          },
+          "description": "Each tool and the versions it must have, e.g. java: \">=21\""
+        },
+        "files": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "description": "Files the tools need, e.g. ~/.m2/settings.xml"
+        }
+      },
+      "required": [
+        "manager"
+      ]
+    },
+    "workspace": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "work_dir": {
+          "type": "string",
+          "minLength": 1
+        },
+        "repos": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "enum": [
+                  "repo",
+                  "wiki"
+                ],
+                "description": "A GitLab project wiki is itself a git repo"
+              },
+              "mode": {
+                "enum": [
+                  "local",
+                  "clone"
+                ],
+                "description": "local: the checkout must exist; clone: the agent may make it"
+              },
+              "path": {
+                "type": "string",
+                "minLength": 1,
+                "description": "Relative to the BA repo"
+              },
+              "remote": {
+                "type": "string",
+                "minLength": 1
+              },
+              "branch": {
+                "type": "string",
+                "minLength": 1
+              },
+              "access": {
+                "enum": [
+                  "read-only",
+                  "read-write"
+                ]
+              },
+              "writers": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$"
+                },
+                "uniqueItems": true,
+                "description": "The only agents that may write here; read-write repos only"
+              },
+              "git": {
+                "type": "boolean",
+                "description": "false for a repo that's a plain folder, not a git checkout"
+              },
+              "build": {
+                "type": "string",
+                "minLength": 1,
+                "description": "The repo's build, run in its folder"
+              },
+              "shallow": {
+                "type": "boolean",
+                "description": "clone mode only"
+              }
+            },
+            "required": [
+              "mode",
+              "path",
+              "access"
+            ]
+          }
+        }
+      },
+      "required": [
+        "repos"
+      ]
+    },
+    "model": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "repo": {
+          "type": "string",
+          "minLength": 1,
+          "description": "The repo that holds the internal model"
+        },
+        "consumers": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "component": {
+                "type": "string",
+                "minLength": 1
+              },
+              "uses": {
+                "enum": [
+                  "java",
+                  "python"
+                ]
+              },
+              "repo": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "required": [
+              "component"
+            ]
+          }
+        },
+        "layout": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "Where the model's files are, in its checkout. By default a flat schemas/, examples/, and the version in pom.xml and python/pyproject.toml",
+          "properties": {
+            "schemas": {
+              "type": "string",
+              "minLength": 1,
+              "description": "The folder of JSON schemas (schemas)"
+            },
+            "nested": {
+              "type": "boolean",
+              "description": "Whether schemas sit in subfolders of it (false)"
+            },
+            "examples": {
+              "type": "string",
+              "minLength": 1,
+              "description": "The folder of examples, <schema>.example.json each, or none (examples)"
+            },
+            "version_files": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1
+              },
+              "description": "The files that hold the model's version, read by their kind: pom.xml, pyproject.toml, package.json; they must agree, and the first is the model's ([pom.xml, python/pyproject.toml])"
+            }
+          }
+        },
+        "conventions": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "The rules `bridge-kit validate model` checks a change against, from the model's CONVENTIONS.md; each has a default, and off turns it off",
+          "properties": {
+            "json_schema": {
+              "enum": [
+                "draft-07",
+                "2019-09",
+                "2020-12",
+                "off",
+                false
+              ],
+              "description": "The $schema every file declares: draft-07 (the default), 2019-09, 2020-12, or off"
+            },
+            "file_names": {
+              "enum": [
+                "kebab-case",
+                "snake_case",
+                "off",
+                false
+              ],
+              "description": "kebab-case (the default), or off"
+            },
+            "field_names": {
+              "enum": [
+                "camelCase",
+                "snake_case",
+                "off",
+                false
+              ],
+              "description": "camelCase (the default), or off"
+            },
+            "booleans": {
+              "enum": [
+                "no-prefix",
+                "is-prefix",
+                "off",
+                false
+              ],
+              "description": "no-prefix (the default: not isActive, hasX), is-prefix (isActive, hasX), or off"
+            },
+            "enum_values": {
+              "enum": [
+                "UPPER_SNAKE_CASE",
+                "off",
+                false
+              ],
+              "description": "UPPER_SNAKE_CASE (the default), or off"
+            },
+            "lists": {
+              "enum": [
+                "required",
+                "off",
+                false
+              ],
+              "description": "required (the default), or off"
+            },
+            "nulls": {
+              "enum": [
+                "forbidden",
+                "off",
+                false
+              ],
+              "description": "forbidden (the default), or off"
+            },
+            "objects": {
+              "enum": [
+                "closed",
+                "off",
+                false
+              ],
+              "description": "closed (the default), or off"
+            },
+            "descriptions": {
+              "enum": [
+                "required",
+                "off",
+                false
+              ],
+              "description": "required (the default), or off"
+            },
+            "money": {
+              "type": [
+                "string",
+                "boolean"
+              ],
+              "description": "The title of the money schema a value and a currency should use (Amount), or off"
+            },
+            "dates": {
+              "enum": [
+                "on",
+                "off",
+                true,
+                false
+              ],
+              "description": "on (the default) or off"
+            },
+            "currencies": {
+              "enum": [
+                "on",
+                "off",
+                true,
+                false
+              ],
+              "description": "on (the default) or off"
+            },
+            "countries": {
+              "enum": [
+                "on",
+                "off",
+                true,
+                false
+              ],
+              "description": "on (the default) or off"
+            }
+          }
+        }
+      }
+    },
+    "integrations": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "nexus": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "url": {
+              "type": "string",
+              "pattern": "^(https?|file)://"
+            }
+          },
+          "required": [
+            "url"
+          ]
+        },
+        "gitlab": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "url",
+            "auth"
+          ],
+          "description": "The GitLab projects and groups the agents may read (and, later, write), and where the token is",
+          "properties": {
+            "url": {
+              "type": "string",
+              "pattern": "^https?://"
+            },
+            "projects": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "id",
+                  "path",
+                  "access"
+                ],
+                "properties": {
+                  "id": {
+                    "type": "integer",
+                    "minimum": 1
+                  },
+                  "path": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "group/project, as in its URL"
+                  },
+                  "key": {
+                    "type": "string",
+                    "pattern": "^[A-Z][A-Z0-9]{1,9}$",
+                    "description": "Work item ids: <key>-<issue number>, e.g. REQ-101"
+                  },
+                  "access": {
+                    "enum": [
+                      "read-only",
+                      "read-write"
+                    ]
+                  },
+                  "wiki": {
+                    "type": "boolean",
+                    "description": "Whether the agents read the project's wiki"
+                  }
+                }
+              }
+            },
+            "groups": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "id",
+                  "path"
+                ],
+                "description": "A group whose epics or wiki the agents read (both need a paid GitLab tier)",
+                "properties": {
+                  "id": {
+                    "type": "integer",
+                    "minimum": 1
+                  },
+                  "path": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "wiki": {
+                    "type": "boolean"
+                  },
+                  "epics": {
+                    "type": "boolean"
+                  }
+                }
+              }
+            },
+            "default_project": {
+              "type": "string",
+              "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$"
+            },
+            "auth": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "token"
+              ],
+              "properties": {
+                "token": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "from"
+                  ],
+                  "description": "Where the token is, never the token itself",
+                  "properties": {
+                    "from": {
+                      "enum": [
+                        "env",
+                        "file",
+                        "command"
+                      ]
+                    },
+                    "env": {
+                      "type": "string",
+                      "pattern": "^[A-Za-z_][A-Za-z0-9_]*$"
+                    },
+                    "file": {
+                      "type": "string",
+                      "minLength": 1,
+                      "description": "Readable by its owner only (chmod 600)"
+                    },
+                    "command": {
+                      "type": "string",
+                      "minLength": 1,
+                      "description": "Any command that prints the token, e.g. from a secret store"
+                    }
+                  }
+                }
+              }
+            },
+            "tls": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "ca_file": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "The certificate authority of a self-managed GitLab, when it's its own"
+                }
+              }
+            }
+          }
+        },
+        "mongodb": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "uri",
+            "environment",
+            "services"
+          ],
+          "description": "MongoDB payload samples: read by request id, from dev or SIT, once test_data_only is true. Every name comes from an environment variable",
+          "properties": {
+            "uri": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "from"
+              ],
+              "description": "Where the connection string is, never the string itself: it holds the database user's password",
+              "properties": {
+                "from": {
+                  "enum": [
+                    "env",
+                    "file",
+                    "command"
+                  ]
+                },
+                "env": {
+                  "type": "string",
+                  "pattern": "^[A-Za-z_][A-Za-z0-9_]*$"
+                },
+                "file": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "Readable by its owner only (chmod 600)"
+                },
+                "command": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "Any command that prints the connection string, e.g. from a secret store"
+                }
+              }
+            },
+            "environment": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "from",
+                "env"
+              ],
+              "description": "The environment variable naming the environment: dev or sit, anything else is refused",
+              "properties": {
+                "from": {
+                  "const": "env"
+                },
+                "env": {
+                  "type": "string",
+                  "pattern": "^[A-Za-z_][A-Za-z0-9_]*$"
+                }
+              }
+            },
+            "test_data_only": {
+              "type": "boolean",
+              "description": "true once it's confirmed dev and SIT hold test data, not copies of client data; every payload command refuses until then"
+            },
+            "services": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "database",
+                  "collection",
+                  "schema"
+                ],
+                "description": "A service that stores payloads, by its name in architecture/components.yaml",
+                "properties": {
+                  "database": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                      "from",
+                      "env"
+                    ],
+                    "description": "The environment variable naming its database",
+                    "properties": {
+                      "from": {
+                        "const": "env"
+                      },
+                      "env": {
+                        "type": "string",
+                        "pattern": "^[A-Za-z_][A-Za-z0-9_]*$"
+                      }
+                    }
+                  },
+                  "collection": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                      "from",
+                      "env"
+                    ],
+                    "description": "The environment variable naming its collection",
+                    "properties": {
+                      "from": {
+                        "const": "env"
+                      },
+                      "env": {
+                        "type": "string",
+                        "pattern": "^[A-Za-z_][A-Za-z0-9_]*$"
+                      }
+                    }
+                  },
+                  "id_field": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "The field holding the request id; requestId by default"
+                  },
+                  "payload_field": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "Where the payload sits when the stored document wraps it; otherwise the whole document but MongoDB's _id"
+                  },
+                  "schema": {
+                    "type": "string",
+                    "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$",
+                    "description": "The model contract its payloads follow, by its name in components.yaml"
+                  },
+                  "raw": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                      "collection"
+                    ],
+                    "description": "Where the service keeps the raw upstream responses behind a payload, if it does",
+                    "properties": {
+                      "collection": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "required": [
+                          "from",
+                          "env"
+                        ],
+                        "description": "The environment variable naming the raw responses' collection",
+                        "properties": {
+                          "from": {
+                            "const": "env"
+                          },
+                          "env": {
+                            "type": "string",
+                            "pattern": "^[A-Za-z_][A-Za-z0-9_]*$"
+                          }
+                        }
+                      },
+                      "id_field": {
+                        "type": "string",
+                        "minLength": 1,
+                        "description": "The request id's field; requestId by default"
+                      },
+                      "upstream_field": {
+                        "type": "string",
+                        "minLength": 1,
+                        "description": "The upstream's field; upstream by default"
+                      },
+                      "operation_field": {
+                        "type": "string",
+                        "minLength": 1,
+                        "description": "The operation's field; operation by default"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "work_items": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "folder": {
+          "type": "string",
+          "minLength": 1
+        },
+        "archive": {
+          "type": "string",
+          "minLength": 1
+        },
+        "stories": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "output": {
+              "enum": [
+                "local",
+                "gitlab"
+              ]
+            },
+            "path": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        }
+      }
+    },
+    "rules": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "workspace": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "confirm": {
+              "enum": [
+                "every-run",
+                "once-per-session"
+              ]
+            },
+            "on_missing_path": {
+              "enum": [
+                "stop"
+              ]
+            },
+            "on_remote_mismatch": {
+              "const": "stop"
+            },
+            "on_branch_mismatch": {
+              "enum": [
+                "stop"
+              ]
+            },
+            "behind_remote": {
+              "enum": [
+                "ask",
+                "warn"
+              ]
+            },
+            "dirty_read_only": {
+              "enum": [
+                "warn",
+                "stop"
+              ]
+            },
+            "clone_root": {
+              "type": "string",
+              "minLength": 1
+            },
+            "never_delete_checkouts": {
+              "const": true
+            },
+            "allow_local_overrides": {
+              "type": "boolean"
+            }
+          }
+        },
+        "writes": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "work_branch_prefix": {
+              "type": "string",
+              "minLength": 1
+            },
+            "base_must_be_up_to_date": {
+              "type": "boolean"
+            },
+            "never_write": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
+        },
+        "outputs": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "record_commits": {
+              "type": "boolean"
+            }
+          }
+        }
+      }
+    },
+    "defaults": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "approvals": {
+          "type": "array",
+          "items": {
+            "enum": [
+              "clone-repo",
+              "pull-repo",
+              "push-branch",
+              "open-merge-request",
+              "create-issue",
+              "update-issue",
+              "close-issue"
+            ]
+          },
+          "uniqueItems": true
+        },
+        "data": {
+          "enum": [
+            "synthetic-only"
+          ]
+        }
+      }
+    }
+  },
+  "required": [
+    "bridge-kit",
+    "environment",
+    "workspace"
+  ]
+}

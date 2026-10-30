@@ -1,0 +1,19 @@
+# Scored with bridge-kit eval stories (the Story Writer's plan, step 3). Paths are relative to this file.
+# Wording only, from data the output has: a summary service story with no schema change, and no model story.
+stories:
+  work_item: REQ-344
+  folder: work/REQ-344/stories
+  expected:
+  - component: service-b-python
+    blocked_by: []
+    contracts: {}
+    implements: []
+    facts:
+    - [mainContactName]
+    - [narrative]
+    - [golden]
+    - [eval]
+    - ['2.0.0']
+    - [no main contact]
+  open_questions: []
+  fail_under: 80

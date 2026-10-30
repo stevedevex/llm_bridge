@@ -1,0 +1,76 @@
+# The tests' own landscape, in BRIDGE's general names: the shared model and service-a-java checked out beside the BA
+# repo as plain folders, the tools on the PATH. Tests copy it into a BA repo of their own and change what they test.
+
+bridge-kit:
+  version: 0.1.0
+  schema: schema/bridge-kit.schema.json
+
+environment:
+  manager: none
+  tools:
+    java: ">=21"
+    mvn: ">=3.9"
+    python: ">=3.11"
+    uv: "*"
+    git: "*"
+
+workspace:
+  work_dir: .work
+  repos:
+    shared-model:
+      mode: local
+      path: ../shared-model
+      access: read-write
+      writers: [model-designer]
+      git: false
+      build: mvn -o -q verify       # validate model runs it; -o: it builds from the local Maven cache
+    service-a-java:
+      mode: local
+      path: ../service-a-java
+      access: read-only
+      git: false
+
+model:
+  repo: shared-model
+  consumers:
+    - component: service-a-java
+      uses: java
+      repo: service-a-java
+    - component: service-c-java
+      uses: java
+    - component: service-d-java
+      uses: java
+    - component: service-b-python
+      uses: python
+
+work_items:
+  id: "{key}-{issue}"
+  folder: "work/{id}-{slug}"
+  archive: "work/archive/{id}-{slug}"
+  stories:
+    output: local
+    path: "{folder}/stories"
+
+rules:
+  workspace:
+    confirm: every-run
+    on_missing_path: stop
+    on_remote_mismatch: stop
+    on_branch_mismatch: stop
+    behind_remote: ask
+    dirty_read_only: warn
+    clone_root: .work/repos
+    never_delete_checkouts: true
+    allow_local_overrides: true
+  writes:
+    work_branch_prefix: feature/
+    base_must_be_up_to_date: true
+    never_write:
+      - "**/target/**"
+      - "**/generated-sources/**"
+  outputs:
+    record_commits: true
+
+defaults:
+  approvals: [clone-repo, pull-repo, push-branch, open-merge-request, create-issue, update-issue, close-issue]
+  data: synthetic-only

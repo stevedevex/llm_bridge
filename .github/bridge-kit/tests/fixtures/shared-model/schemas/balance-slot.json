@@ -1,0 +1,19 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "BalanceSlot",
+  "description": "The balances source's slot on an account: its booked balance.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [],
+  "properties": {
+    "bookedBalance": {
+      "$ref": "amount.json",
+      "description": "Booked balance at the start of the day the record was collected."
+    },
+    "balanceDate": {
+      "type": "string",
+      "format": "date",
+      "description": "Date the booked balance is for."
+    }
+  }
+}

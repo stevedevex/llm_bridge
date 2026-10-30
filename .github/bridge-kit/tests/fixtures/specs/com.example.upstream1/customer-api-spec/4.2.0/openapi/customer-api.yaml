@@ -1,0 +1,93 @@
+openapi: 3.0.3
+info:
+  title: Customer API
+  version: 4.2.0
+  description: A made-up upstream, for the kit's tests. One customer, with how they want to be contacted.
+paths:
+  /customers/{id}:
+    get:
+      operationId: getCustomer
+      summary: One customer, with their contact preference.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: The customer's identifier, as the customer directory gives it.
+          schema:
+            type: string
+      responses:
+        "200":
+          description: The customer.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Customer"
+        "404":
+          description: No customer with that identifier.
+  /customers/{id}/contact-preference:
+    put:
+      operationId: updateContactPreference
+      summary: Changes how the customer wants to be contacted.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ContactPreference"
+      responses:
+        "200":
+          description: The contact preference, as changed.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ContactPreference"
+components:
+  schemas:
+    Customer:
+      type: object
+      required: [id]
+      properties:
+        id:
+          type: string
+          description: The customer's identifier.
+        displayName:
+          type: string
+          description: The name the customer is greeted by.
+        contactPreference:
+          $ref: "#/components/schemas/ContactPreference"
+    ContactPreference:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+          description: The email address the customer gave for contact.
+        language:
+          type: string
+          description: The language to write in, as an ISO 639-1 code, in upper or lower case.
+        bestTime:
+          type: string
+          description: When the customer said they'd rather be contacted, in their own words.
+        marketingFlag:
+          type: string
+          enum: [Y, N]
+          description: Y when the customer agreed to be contacted about other products.
+        channelCode:
+          type: string
+          enum: [E, P, S]
+          description: >-
+            The channel the customer chose to be contacted on: E for email, P for a phone call, S for a text message
+            (SMS). Absent when they haven't chosen.
+        channelChosenAt:
+          type: string
+          format: date-time
+          description: When the customer chose the channel.
+        updatedAt:
+          type: string
+          format: date-time
+          description: When the customer last changed any of their contact preferences.

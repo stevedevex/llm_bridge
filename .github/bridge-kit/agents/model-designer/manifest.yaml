@@ -1,0 +1,50 @@
+# Governance for the Model Designer. Copilot never reads this; bridge-kit's validator does.
+# The agent itself is .github/agents/model-designer.agent.md, joined to this file by name.
+
+name: model-designer
+version: 0.2.7
+status: experimental
+owner: ba-team
+layer: specialist
+domain: model
+
+inputs:
+  - name: work_item
+    type: work-item
+  - name: request
+    type: text                       # what the model needs, in the BA's words
+  - name: digest
+    type: spec-digest                # for data from a new upstream
+    required: false
+
+outputs:
+  - path: work/*/model-change.md
+    format: model-change@1           # the merge request description
+  - repo: shared-model
+    path: "{schemas/**,examples/**,pom.xml,python/pyproject.toml}"
+
+stages: [R3, R4]
+writes:
+  - work/*/model-change.md
+  - shared-model:schemas/**
+  - shared-model:examples/**
+  - shared-model:pom.xml
+  - shared-model:python/pyproject.toml
+
+skills:
+  model-designing: ">=0.3"
+  gitlab-reading: ">=0.1"
+  document-reading: ">=0.1"
+  payload-reading: ">=0.1"
+
+requires:
+  clis: [java, mvn, python, uv]
+  repos: [shared-model, service-a-java]
+
+validators:
+  - bridge-kit validate model {inputs.work_item}
+
+approvals:                           # the change stays on its feature branch until the BA says otherwise
+  - push-branch
+  - open-merge-request
+data: synthetic-only

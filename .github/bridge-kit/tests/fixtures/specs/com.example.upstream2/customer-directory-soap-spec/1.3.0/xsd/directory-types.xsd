@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Customer Directory Service 1.3.0: the types. -->
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+            xmlns:dt="urn:example:directory:types:v1"
+            targetNamespace="urn:example:directory:types:v1"
+            elementFormDefault="qualified"
+            version="1.3.0">
+
+  <xsd:complexType name="Party">
+    <xsd:sequence>
+      <xsd:element name="PartyId" type="xsd:string">
+        <xsd:annotation><xsd:documentation>The customer's identifier, the same in every system.</xsd:documentation></xsd:annotation>
+      </xsd:element>
+      <xsd:element name="FullName" type="xsd:string"/>
+      <xsd:element name="PreferredName" type="xsd:string" minOccurs="0">
+        <xsd:annotation><xsd:documentation>The name the customer goes by, when they gave one.</xsd:documentation></xsd:annotation>
+      </xsd:element>
+      <xsd:element name="SegmentCode" minOccurs="0">
+        <xsd:annotation><xsd:documentation>R retail, P private banking, B business.</xsd:documentation></xsd:annotation>
+        <xsd:simpleType>
+          <xsd:restriction base="xsd:string">
+            <xsd:enumeration value="R"/>
+            <xsd:enumeration value="P"/>
+            <xsd:enumeration value="B"/>
+          </xsd:restriction>
+        </xsd:simpleType>
+      </xsd:element>
+      <xsd:element name="BirthDate" type="xsd:date" minOccurs="0"/>
+      <xsd:element name="CountryOfResidence" type="xsd:string" minOccurs="0">
+        <xsd:annotation><xsd:documentation>ISO 3166-1 alpha-2.</xsd:documentation></xsd:annotation>
+      </xsd:element>
+      <xsd:element name="PhoneNumber" type="xsd:string" minOccurs="0">
+        <xsd:annotation><xsd:documentation>As the customer gave it, with spaces.</xsd:documentation></xsd:annotation>
+      </xsd:element>
+      <xsd:element name="Account" type="dt:Account" minOccurs="0" maxOccurs="unbounded"/>
+    </xsd:sequence>
+  </xsd:complexType>
+
+  <xsd:complexType name="Account">
+    <xsd:sequence>
+      <xsd:element name="AccountNumber" type="xsd:string"/>
+      <xsd:element name="ProductCode" minOccurs="0">
+        <xsd:annotation><xsd:documentation>CA current account, SA savings, LN loan.</xsd:documentation></xsd:annotation>
+        <xsd:simpleType>
+          <xsd:restriction base="xsd:string">
+            <xsd:enumeration value="CA"/>
+            <xsd:enumeration value="SA"/>
+            <xsd:enumeration value="LN"/>
+          </xsd:restriction>
+        </xsd:simpleType>
+      </xsd:element>
+      <xsd:element name="StatusCode">
+        <xsd:annotation><xsd:documentation>O open, C closed, F frozen, D deleted.</xsd:documentation></xsd:annotation>
+        <xsd:simpleType>
+          <xsd:restriction base="xsd:string">
+            <xsd:enumeration value="O"/>
+            <xsd:enumeration value="C"/>
+            <xsd:enumeration value="F"/>
+            <xsd:enumeration value="D"/>
+          </xsd:restriction>
+        </xsd:simpleType>
+      </xsd:element>
+      <xsd:element name="HolderCount" type="xsd:int">
+        <xsd:annotation><xsd:documentation>How many people hold the account.</xsd:documentation></xsd:annotation>
+      </xsd:element>
+      <xsd:element name="OpenedOn" type="xsd:dateTime" minOccurs="0"/>
+      <xsd:element name="CurrencyCode" type="xsd:string" minOccurs="0">
+        <xsd:annotation><xsd:documentation>ISO 4217.</xsd:documentation></xsd:annotation>
+      </xsd:element>
+    </xsd:sequence>
+  </xsd:complexType>
+
+  <xsd:complexType name="Balance">
+    <xsd:sequence>
+      <xsd:element name="BalanceType">
+        <xsd:annotation><xsd:documentation>BOOKED at the start of the day, or AVAILABLE now.</xsd:documentation></xsd:annotation>
+        <xsd:simpleType>
+          <xsd:restriction base="xsd:string">
+            <xsd:enumeration value="BOOKED"/>
+            <xsd:enumeration value="AVAILABLE"/>
+          </xsd:restriction>
+        </xsd:simpleType>
+      </xsd:element>
+      <xsd:element name="Amount" type="dt:Amount"/>
+      <xsd:element name="AsOfDate" type="xsd:date" minOccurs="0"/>
+    </xsd:sequence>
+  </xsd:complexType>
+
+  <xsd:complexType name="Amount">
+    <xsd:sequence>
+      <xsd:element name="Value" type="xsd:decimal"/>
+      <xsd:element name="Currency" type="xsd:string"/>
+    </xsd:sequence>
+  </xsd:complexType>
+</xsd:schema>

@@ -1,0 +1,17 @@
+# Caches, scratch files and run output (bridge-kit's working folder)
+.work/
+
+# One person's overrides of bridge-kit.yaml: a repo's mode and path, the environment's name
+.github/bridge-kit/bridge-kit.local.yaml
+
+# Python's caches and virtual environments
+__pycache__/
+.pytest_cache/
+.venv/
+
+# IDE folders: nothing IDE-specific is committed
+.idea/
+.vscode/
+
+# macOS
+.DS_Store

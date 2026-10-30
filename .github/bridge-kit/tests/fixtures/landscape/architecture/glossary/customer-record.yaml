@@ -1,0 +1,29 @@
+# Business terms of the customer record, as BAs say them, and where each is in the shared model. Made up, for the
+# tests. `bridge-kit knowledge term "<words>"` looks one up, and `bridge-kit knowledge check` checks every data element
+# is a path of the model. Write data elements as a list of lines: a path's [] would be read as a list inside [ ].
+
+terms:
+  customer name:
+    definition: The customer's full name, as they gave it.
+    synonyms: [full name, name on file]
+    data:
+      - CustomerRecord.name
+  customer id:
+    definition: The customer's identifier, the same in every upstream system.
+    synonyms: [customer number]
+    data:
+      - CustomerRecord.customerId
+  preferred contact channel:
+    definition: How the customer asked to be contacted.
+    synonyms: [contact preference, preferred channel]
+    data:
+      - CustomerRecord.contactPreference.channel
+  account status:
+    definition: Whether an account is open, closed or frozen.
+    data:
+      - CustomerRecord.accounts[].status
+  account balance:
+    definition: What an account holds, at the latest statement.
+    synonyms: [balance]
+    data:
+      - CustomerRecord.accounts[].balance

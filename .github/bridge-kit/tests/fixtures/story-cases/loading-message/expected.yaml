@@ -1,0 +1,17 @@
+# Scored with bridge-kit eval stories (the Story Writer's plan, step 3). Paths are relative to this file.
+# Screen behaviour only: any story but the UI's counts against the set.
+stories:
+  work_item: REQ-343
+  folder: work/REQ-343/stories
+  expected:
+  - component: ui-react
+    blocked_by: []
+    contracts: {}
+    implements: []
+    facts:
+    - [loading]
+    - [minute]
+    - [try again, retry]
+    - [error, fails, failed]
+  open_questions: []
+  fail_under: 80

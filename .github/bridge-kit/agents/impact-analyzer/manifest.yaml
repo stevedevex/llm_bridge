@@ -1,0 +1,39 @@
+# Governance for the Impact Analyzer. Copilot never reads this; bridge-kit's validator does.
+# The agent itself is .github/agents/impact-analyzer.agent.md, joined to this file by name.
+
+name: impact-analyzer
+version: 0.1.1
+status: experimental
+owner: ba-team
+layer: specialist
+domain: requirements
+
+inputs:
+  - name: work_item
+    type: work-item
+  - name: requirement
+    type: requirement                # work/<id>/inputs/requirement.md, a GitLab story or documents, kept as inputs
+
+outputs:
+  - path: work/*/impact.md
+    format: impact@1                 # templates/impact.md
+
+stages: [R2]
+writes:
+  - work/*/impact.md
+  - .work/tmp/**
+
+skills:
+  impact-analysis: ">=0.1.1"
+  gitlab-reading: ">=0.1"
+  document-reading: ">=0.1"
+
+requires:
+  clis: [python, uv, git]
+  repos: []                          # reads whichever component checkouts bridge-kit.yaml declares, read-only
+
+validators:
+  - bridge-kit validate impact {inputs.work_item}
+
+approvals: []                        # writes impact.md in the BA repo, nothing else
+data: synthetic-only

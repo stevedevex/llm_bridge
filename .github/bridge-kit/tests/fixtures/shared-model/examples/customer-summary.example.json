@@ -1,0 +1,18 @@
+{
+  "customerId": "CU-000042",
+  "headline": "A retail customer with one open current account.",
+  "totalBalance": {
+    "value": 2450.75,
+    "currency": "GBP"
+  },
+  "accounts": [
+    {
+      "accountId": "AC-1001",
+      "productType": "CURRENT",
+      "balance": {
+        "value": 2450.75,
+        "currency": "GBP"
+      }
+    }
+  ]
+}

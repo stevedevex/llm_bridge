@@ -1,0 +1,30 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "AccountSummary",
+  "description": "One open account, as the summary shows it.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "accountId"
+  ],
+  "properties": {
+    "accountId": {
+      "type": "string",
+      "minLength": 1,
+      "description": "The account it's about."
+    },
+    "productType": {
+      "type": "string",
+      "enum": [
+        "CURRENT",
+        "SAVINGS",
+        "LOAN"
+      ],
+      "description": "What kind of account it is."
+    },
+    "balance": {
+      "$ref": "amount.json",
+      "description": "Its booked balance."
+    }
+  }
+}

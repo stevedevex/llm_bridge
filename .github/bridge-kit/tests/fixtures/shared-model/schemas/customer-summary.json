@@ -1,0 +1,34 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "CustomerSummary",
+  "description": "What the summary service writes from one customer record, for the relationship manager. The root of the summary payload.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "customerId",
+    "headline",
+    "accounts"
+  ],
+  "properties": {
+    "customerId": {
+      "type": "string",
+      "minLength": 1,
+      "description": "The customer the summary is for."
+    },
+    "headline": {
+      "type": "string",
+      "description": "One sentence on the customer, for the relationship manager."
+    },
+    "totalBalance": {
+      "$ref": "amount.json",
+      "description": "The open accounts' booked balances added up, in the customer's main currency."
+    },
+    "accounts": {
+      "type": "array",
+      "items": {
+        "$ref": "account-summary.json"
+      },
+      "description": "Each open account, in a line."
+    }
+  }
+}

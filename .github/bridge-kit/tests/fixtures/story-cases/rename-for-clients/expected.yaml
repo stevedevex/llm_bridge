@@ -1,0 +1,27 @@
+# Scored with bridge-kit eval stories (the Story Writer's plan, step 3). Paths are relative to this file.
+# A breaking change for external clients, with one low-confidence item: it's asked, never settled.
+stories:
+  work_item: REQ-345
+  folder: work/REQ-345/stories
+  expected:
+  - component: service-d-java
+    blocked_by: []
+    contracts: {service-d-api: breaking}
+    implements: []
+    facts:
+    - [v3]
+    - [bookedBalance]
+    - [six months]
+    - [gateway]
+    - [partner, external client]
+  - component: ui-react
+    blocked_by: [service-d-java]
+    contracts: {}
+    implements: []
+    facts:
+    - [v3]
+    - [bookedBalance]
+  open_questions:                    # asked under that story's Open questions: any of the words counts
+  - component: service-d-java
+    words: [bookedBal]
+  fail_under: 80

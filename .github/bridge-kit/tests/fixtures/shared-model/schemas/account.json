@@ -1,0 +1,56 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Account",
+  "description": "One account the customer holds: its identity, from the customer directory, then its slot.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "accountId",
+    "status",
+    "joint",
+    "balance"
+  ],
+  "properties": {
+    "accountId": {
+      "type": "string",
+      "minLength": 1,
+      "description": "The account's identifier in the accounts system."
+    },
+    "productType": {
+      "type": "string",
+      "enum": [
+        "CURRENT",
+        "SAVINGS",
+        "LOAN"
+      ],
+      "description": "What kind of account it is."
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "OPEN",
+        "CLOSED",
+        "FROZEN"
+      ],
+      "description": "Whether the account is open, closed or frozen."
+    },
+    "joint": {
+      "type": "boolean",
+      "description": "Whether the account is held jointly with someone else."
+    },
+    "openingDate": {
+      "type": "string",
+      "format": "date",
+      "description": "Date the account was opened."
+    },
+    "currency": {
+      "type": "string",
+      "pattern": "^[A-Z]{3}$",
+      "description": "The account's currency (ISO 4217)."
+    },
+    "balance": {
+      "$ref": "balance-slot.json",
+      "description": "What the balances source holds for the account."
+    }
+  }
+}

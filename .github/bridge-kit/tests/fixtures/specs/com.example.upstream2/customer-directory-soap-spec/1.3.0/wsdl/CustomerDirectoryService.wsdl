@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Customer Directory Service 1.3.0. A made-up upstream, for the kit's tests. -->
+<wsdl:definitions xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
+                  xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+                  xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+                  xmlns:dm="urn:example:directory:messages:v1"
+                  xmlns:tns="urn:example:directory:service:v1"
+                  targetNamespace="urn:example:directory:service:v1"
+                  name="CustomerDirectoryService">
+
+  <wsdl:documentation>Who a customer is, the accounts they hold, and each account's balances.</wsdl:documentation>
+
+  <wsdl:types>
+    <xsd:schema>
+      <xsd:import namespace="urn:example:directory:messages:v1" schemaLocation="../xsd/directory-messages.xsd"/>
+    </xsd:schema>
+  </wsdl:types>
+
+  <wsdl:message name="GetPartyInput">
+    <wsdl:part name="parameters" element="dm:GetPartyRequest"/>
+  </wsdl:message>
+  <wsdl:message name="GetPartyOutput">
+    <wsdl:part name="parameters" element="dm:GetPartyResponse"/>
+  </wsdl:message>
+  <wsdl:message name="GetBalanceInput">
+    <wsdl:part name="parameters" element="dm:GetBalanceRequest"/>
+  </wsdl:message>
+  <wsdl:message name="GetBalanceOutput">
+    <wsdl:part name="parameters" element="dm:GetBalanceResponse"/>
+  </wsdl:message>
+  <wsdl:message name="DirectoryFaultMessage">
+    <wsdl:part name="fault" element="dm:DirectoryFault"/>
+  </wsdl:message>
+
+  <wsdl:portType name="CustomerDirectoryPortType">
+    <wsdl:operation name="GetParty">
+      <wsdl:documentation>One customer and the accounts they hold.</wsdl:documentation>
+      <wsdl:input message="tns:GetPartyInput"/>
+      <wsdl:output message="tns:GetPartyOutput"/>
+      <wsdl:fault name="DirectoryFault" message="tns:DirectoryFaultMessage"/>
+    </wsdl:operation>
+    <wsdl:operation name="GetBalance">
+      <wsdl:documentation>The balances of one account.</wsdl:documentation>
+      <wsdl:input message="tns:GetBalanceInput"/>
+      <wsdl:output message="tns:GetBalanceOutput"/>
+      <wsdl:fault name="DirectoryFault" message="tns:DirectoryFaultMessage"/>
+    </wsdl:operation>
+  </wsdl:portType>
+
+  <wsdl:binding name="CustomerDirectorySoapBinding" type="tns:CustomerDirectoryPortType">
+    <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+    <wsdl:operation name="GetParty">
+      <soap:operation soapAction="urn:example:directory:service:v1:GetParty"/>
+      <wsdl:input><soap:body use="literal"/></wsdl:input>
+      <wsdl:output><soap:body use="literal"/></wsdl:output>
+      <wsdl:fault name="DirectoryFault"><soap:fault name="DirectoryFault" use="literal"/></wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="GetBalance">
+      <soap:operation soapAction="urn:example:directory:service:v1:GetBalance"/>
+      <wsdl:input><soap:body use="literal"/></wsdl:input>
+      <wsdl:output><soap:body use="literal"/></wsdl:output>
+      <wsdl:fault name="DirectoryFault"><soap:fault name="DirectoryFault" use="literal"/></wsdl:fault>
+    </wsdl:operation>
+  </wsdl:binding>
+
+  <wsdl:service name="CustomerDirectoryService">
+    <wsdl:port name="CustomerDirectoryPort" binding="tns:CustomerDirectorySoapBinding">
+      <soap:address location="https://directory.example/soap/v1"/>
+    </wsdl:port>
+  </wsdl:service>
+</wsdl:definitions>

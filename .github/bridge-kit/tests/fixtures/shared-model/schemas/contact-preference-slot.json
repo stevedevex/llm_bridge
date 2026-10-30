@@ -1,0 +1,32 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "ContactPreferenceSlot",
+  "description": "The customer API's slot: how the customer wants to be contacted.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [],
+  "properties": {
+    "email": {
+      "type": "string",
+      "description": "Email address to contact the customer at."
+    },
+    "preferredLanguage": {
+      "type": "string",
+      "pattern": "^[a-z]{2}$",
+      "description": "Language to contact the customer in (ISO 639-1)."
+    },
+    "contactTime": {
+      "type": "string",
+      "description": "When the customer prefers to be contacted, as they said it, e.g. weekday mornings."
+    },
+    "marketingConsent": {
+      "type": "boolean",
+      "description": "Whether the customer agreed to be contacted about other products."
+    },
+    "updatedDate": {
+      "type": "string",
+      "format": "date",
+      "description": "Date the customer last changed their preferences."
+    }
+  }
+}

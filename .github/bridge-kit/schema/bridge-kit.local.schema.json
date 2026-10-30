@@ -1,0 +1,131 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "bridge-kit.local.schema.json",
+  "title": "bridge-kit.local.yaml",
+  "description": "One person's overrides, next to bridge-kit.yaml and git-ignored: only a repo's mode and path, the environment's name, and where their GitLab token is.",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "environment": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$"
+        }
+      }
+    },
+    "workspace": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "repos": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "mode": {
+                "enum": [
+                  "local",
+                  "clone"
+                ]
+              },
+              "path": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
+        }
+      }
+    },
+    "integrations": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "gitlab": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "auth": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "token": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "from"
+                  ],
+                  "description": "Where the token is, never the token itself",
+                  "properties": {
+                    "from": {
+                      "enum": [
+                        "env",
+                        "file",
+                        "command"
+                      ]
+                    },
+                    "env": {
+                      "type": "string",
+                      "pattern": "^[A-Za-z_][A-Za-z0-9_]*$"
+                    },
+                    "file": {
+                      "type": "string",
+                      "minLength": 1,
+                      "description": "Readable by its owner only (chmod 600)"
+                    },
+                    "command": {
+                      "type": "string",
+                      "minLength": 1,
+                      "description": "Any command that prints the token, e.g. from a secret store"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "mongodb": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "uri": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "from"
+              ],
+              "description": "Where the connection string is, never the string itself: it holds the database user's password",
+              "properties": {
+                "from": {
+                  "enum": [
+                    "env",
+                    "file",
+                    "command"
+                  ]
+                },
+                "env": {
+                  "type": "string",
+                  "pattern": "^[A-Za-z_][A-Za-z0-9_]*$"
+                },
+                "file": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "Readable by its owner only (chmod 600)"
+                },
+                "command": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "Any command that prints the connection string, e.g. from a secret store"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,44 @@
+# Governance for the Test Designer. Copilot never reads this; bridge-kit's validator does.
+# The agent itself is .github/agents/test-designer.agent.md, joined to this file by name.
+
+name: test-designer
+version: 0.1.0
+status: experimental
+owner: ba-team
+layer: specialist
+domain: tests
+
+inputs:
+  - name: work_item
+    type: work-item
+  - name: stories
+    type: stories                    # work/<id>/stories/*.md, approved or created
+  - name: impact
+    type: impact-analysis            # work/<id>/impact.md: the data path's hops
+  - name: package
+    type: requirement-package        # the mapping specs, the assembly spec, the model change
+    required: false
+
+outputs:
+  - path: work/*/tests/*.md
+    format: test-case@1              # templates/test-case.md
+
+stages: []
+writes:
+  - work/*/tests/**
+  - .work/tmp/**
+
+skills:
+  test-designing: ">=0.1"
+  payload-reading: ">=0.1"
+
+requires:
+  clis: [python, uv]
+  repos: []
+
+validators:
+  - bridge-kit validate test-case {outputs.test_case}
+  - bridge-kit tests coverage {inputs.work_item}
+
+approvals: []                        # writes the cases in the BA repo; the tester and the BA approve them
+data: synthetic-only

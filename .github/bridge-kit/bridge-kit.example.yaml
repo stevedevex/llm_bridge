@@ -1,0 +1,160 @@
+# An example bridge-kit.yaml, to write a real one from: copy it to bridge-kit.yaml beside it and replace every
+# <placeholder>. It's checked against schema/bridge-kit.schema.json; `bridge-kit preflight` says what's wrong with it,
+# and then whether the environment and every checkout are as it says. Paths are relative to the BA repo. How each
+# section is filled in: design/01-landscape.md.
+#
+# One person's differences go in bridge-kit.local.yaml beside it, git-ignored: only a repo's mode and path, and the
+# environment's name (schema/bridge-kit.local.schema.json). For example, a BA whose checkouts are elsewhere:
+#
+#   environment:
+#     name: <their environment>
+#   workspace:
+#     repos:
+#       <repo>:
+#         path: <where their checkout is>
+
+bridge-kit:
+  version: 0.1.0                    # the kit's version this file is written for
+  schema: schema/bridge-kit.schema.json
+
+# Where the tools come from. Every command the kit starts runs through bin/bridge-kit-run, which runs it inside this
+# environment. The kit never creates, installs into or changes it: the workspace provides it.
+environment:
+  manager: micromamba               # micromamba, or none when the tools are already on the PATH
+  name: <environment>               # the micromamba environment; a plain word
+  tools:                            # each tool the agents need, and the versions it must have
+    java: ">=21"
+    mvn: ">=3.9"
+    python: ">=3.11"
+    uv: "*"
+    git: "*"
+  files:
+    - ~/.m2/settings.xml            # Nexus access for the spec resolver and the builds
+
+workspace:
+  work_dir: .work                   # git-ignored: caches, scratch files, the kit's own Python environment
+  repos:                            # every repo an agent may read or write, by the name agents use for it
+    shared-model:
+      mode: local                   # local: the checkout must already be there
+      path: ../shared-model         # every repo is checked out beside the BA repo
+      remote: <git URL of the shared model's repo>
+      branch: <its base branch>     # a read-write repo may also be on a work branch (rules.writes)
+      access: read-write
+      writers: [model-designer]     # the only agents that may write here
+      build: <the model's build, e.g. mvn -q verify>
+    service-a-java:
+      mode: local
+      path: ../service-a-java
+      remote: <git URL of service-a-java's repo>
+      branch: <its base branch>     # a read-only repo must be on it
+      access: read-only
+
+# The shared model: which repo holds it, and who uses it, so a breaking change names everyone it hits.
+model:
+  repo: shared-model
+  consumers:
+    - component: service-a-java
+      uses: java
+      repo: service-a-java          # searched for the fields a breaking change removes
+    - component: <another component>
+      uses: java                    # java or python; without a repo it's listed, not searched
+  layout:                           # where the model's files are in its checkout; leave out what's as shown
+    schemas: schemas                # the folder of JSON schemas
+    nested: false                   # true when schemas sit in subfolders of it
+    examples: examples              # the folder of examples, <schema>.example.json each, or none
+    version_files: [pom.xml, python/pyproject.toml]   # pom.xml, pyproject.toml or package.json; they must agree
+  conventions:                      # what validate model checks a change against, from the model's CONVENTIONS.md;
+                                    # each is the default shown unless set here, and off turns it off
+    json_schema: draft-07           # the $schema every file declares: draft-07, 2019-09 or 2020-12
+    file_names: kebab-case          # a new schema file's name: kebab-case or snake_case
+    field_names: camelCase          # camelCase or snake_case
+    booleans: no-prefix             # no-prefix (active, not isActive), or is-prefix (isActive, hasGuarantee)
+    enum_values: UPPER_SNAKE_CASE
+    lists: required                 # lists always present, an empty one meaning none, and plural
+    nulls: forbidden                # a field that's unknown is left out, never null
+    objects: closed                 # additionalProperties: false and a title on every object
+    descriptions: required          # a description on every new property and schema
+    money: Amount                   # the title of the money schema a value and a currency use
+    dates: on                       # a ...Date is a string with format date
+    currencies: on                  # a currency is ISO 4217
+    countries: on                   # a country is ISO 3166-1 alpha-2
+
+integrations:
+  nexus:
+    url: <https URL of the Nexus repository the spec jars are in>   # or leave this out and use settings.xml's mirror
+  gitlab:                           # what bridge-kit gitlab reads: only what's declared here, with the BA's own token
+    url: <https URL of the GitLab>
+    projects:                       # agents name a project by this name, never by its id
+      ba-requirements:
+        id: 12345                   # the project's id: Settings > General
+        path: <group/project>       # as in its URL; bridge-kit gitlab status checks the id names this path
+        key: REQ                    # stories are named REQ-<issue number>; 2 to 10 capitals or digits
+        access: read-only           # read-write only once GitLab mode writes stories, each after the BA's OK
+        wiki: true                  # the agents read this project's wiki
+    groups:                         # a group whose wiki or epics the agents read (both need a paid GitLab tier)
+      pod:
+        id: 678
+        path: <group>
+        wiki: true
+        epics: false
+    default_project: ba-requirements   # where a bare story number (101) is looked for
+    auth:
+      token:                        # where the token is, never the token: a personal access token with read_api
+        from: env                   # env, file (chmod 600) or command (one that prints it, e.g. a secret store's)
+        env: GITLAB_TOKEN
+    tls:
+      ca_file: <path to the CA certificate>   # only when GitLab's certificate is from its own authority
+  mongodb:                          # what bridge-kit payload reads: stored payloads, by request id, dev or SIT only
+    uri:                            # where the connection string is, never the string: a read-only database user's
+      from: env                     # env, file (chmod 600) or command, as for the GitLab token
+      env: BRIDGE_KIT_MONGO_URI
+    environment: { from: env, env: BRIDGE_KIT_MONGO_ENV }    # its value must be dev or sit; anything else is refused
+    test_data_only: false           # true once it's confirmed dev and SIT hold test data, no copies of client data
+    services:                       # by their names in architecture/components.yaml; every name from the environment
+      service-a-java:
+        database:   { from: env, env: BRIDGE_KIT_MONGO_SERVICE_A_DB }
+        collection: { from: env, env: BRIDGE_KIT_MONGO_SERVICE_A_COLLECTION }
+        id_field: requestId         # the UUID request id: the only way a payload is looked up
+        schema: model-input                                  # the model contract its payloads follow
+        # payload_field: payload    # only when the stored document wraps the payload in a field of its own
+        raw:                        # only if the service keeps the raw upstream responses behind a payload
+          collection: { from: env, env: BRIDGE_KIT_MONGO_SERVICE_A_RAW_COLLECTION }
+          upstream_field: upstream
+          operation_field: operation
+      service-b-python:
+        database:   { from: env, env: BRIDGE_KIT_MONGO_SERVICE_B_DB }
+        collection: { from: env, env: BRIDGE_KIT_MONGO_SERVICE_B_COLLECTION }
+        id_field: requestId
+        schema: model-output
+
+work_items:
+  id: "{key}-{issue}"               # e.g. REQ-101
+  folder: "work/{id}-{slug}"
+  archive: "work/archive/{id}-{slug}"
+  stories:
+    output: local                   # local: one Markdown file per story; gitlab comes with the GitLab client
+    path: "{folder}/stories"
+
+rules:
+  workspace:
+    confirm: every-run              # every agent run checks the checkouts first (bridge-kit preflight)
+    on_missing_path: stop
+    on_remote_mismatch: stop        # fixed
+    on_branch_mismatch: stop
+    behind_remote: ask              # ask or warn: never pulled without the BA's OK
+    dirty_read_only: warn           # warn or stop
+    clone_root: .work/repos
+    never_delete_checkouts: true    # fixed
+    allow_local_overrides: true     # false turns bridge-kit.local.yaml off
+  writes:
+    work_branch_prefix: feature/    # agents write to other repos only on such branches
+    base_must_be_up_to_date: true
+    never_write:
+      - "**/target/**"
+      - "**/generated-sources/**"
+  outputs:
+    record_commits: true            # outputs record the commit of every repo they used
+
+defaults:                           # every agent inherits these; a manifest may tighten them, never loosen them
+  approvals: [clone-repo, pull-repo, push-branch, open-merge-request, create-issue, update-issue, close-issue]
+  data: synthetic-only

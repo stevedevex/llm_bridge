@@ -1,0 +1,47 @@
+# Scored with bridge-kit eval stories (the Story Writer's plan, step 3). Paths are relative to this file.
+# The date is already collected: a data collection story counts against the set.
+stories:
+  work_item: REQ-342
+  folder: work/REQ-342/stories
+  expected:
+  - component: shared-model
+    blocked_by: []
+    contracts: {model-output: additive}
+    implements: [work/REQ-342/model-change.md]
+    facts:
+    - ['2.1.0']
+    - [valuationDate]
+  - component: service-b-python
+    blocked_by: [shared-model]
+    contracts: {}
+    implements: []
+    facts:
+    - [valuationDate]
+    - [latestValuation]
+    - ['2.1.0']
+    - [golden]
+    - [eval]
+  - component: service-c-java
+    blocked_by: [shared-model]
+    contracts: {service-c-api: additive}
+    implements: []
+    facts:
+    - [valuationDate]
+  - component: service-d-java
+    blocked_by: [service-c-java]
+    contracts: {service-d-api: additive}
+    implements: []
+    facts:
+    - [v2]
+    - [gateway]
+    - [external]
+  - component: ui-react
+    blocked_by: [service-d-java]
+    contracts: {}
+    implements: []
+    facts:
+    - [valuation date, valued]
+    - [collateral panel]
+    - [no valuation date, no date, isn't dated, not dated]
+  open_questions: []
+  fail_under: 80

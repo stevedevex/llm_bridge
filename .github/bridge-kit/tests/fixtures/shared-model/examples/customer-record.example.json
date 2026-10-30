@@ -1,0 +1,42 @@
+{
+  "customerId": "CU-000042",
+  "name": "Alex Example",
+  "displayName": "Alex",
+  "segment": "RETAIL",
+  "birthDate": "1985-04-12",
+  "residenceCountry": "GB",
+  "phone": "+441632960123",
+  "contactPreference": {
+    "email": "alex@example.com",
+    "preferredLanguage": "en",
+    "contactTime": "weekday mornings",
+    "marketingConsent": false,
+    "updatedDate": "2025-09-30"
+  },
+  "accounts": [
+    {
+      "accountId": "AC-1001",
+      "productType": "CURRENT",
+      "status": "OPEN",
+      "joint": false,
+      "openingDate": "2019-07-01",
+      "currency": "GBP",
+      "balance": {
+        "bookedBalance": {
+          "value": 2450.75,
+          "currency": "GBP"
+        },
+        "balanceDate": "2026-03-31"
+      }
+    },
+    {
+      "accountId": "AC-1002",
+      "productType": "SAVINGS",
+      "status": "CLOSED",
+      "joint": true,
+      "openingDate": "2016-02-15",
+      "currency": "GBP",
+      "balance": {}
+    }
+  ]
+}

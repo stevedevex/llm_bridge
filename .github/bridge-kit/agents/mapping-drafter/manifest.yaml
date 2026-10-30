@@ -1,0 +1,55 @@
+# Governance for the Mapping Drafter. Copilot never reads this; bridge-kit's validator does.
+# The agent itself is .github/agents/mapping-drafter.agent.md, joined to this file by name.
+
+name: mapping-drafter
+version: 0.5.2
+status: stable
+owner: ba-team
+layer: specialist
+domain: mapping
+
+inputs:
+  - name: work_item
+    type: work-item
+  - name: mapping_request
+    type: mapping-request            # work/<id>/inputs/mapping-request*.md, from mappings/REQUEST.md
+  - name: digest
+    type: spec-digest                # for a new upstream
+    required: false
+  - name: rough_mapping
+    type: document                   # the BA's own working mapping, kept as an input; the request names it
+    required: false
+
+outputs:
+  - path: mappings/**/*.md
+    format: mapping-spec@1
+  - path: lookups/*.md
+    format: lookup@1
+  - path: assembly/*.md
+    format: assembly-spec@1
+
+stages: [R4]
+writes:
+  - mappings/**
+  - lookups/**
+  - assembly/**
+  - work/*/decisions.md              # a second turn's record of each answer
+  - .work/tmp/**
+
+skills:
+  mapping-drafting: ">=0.5"
+  mapping-format: ">=0.4"
+  spec-resolver: ">=0.1"
+  document-reading: ">=0.1"
+  payload-reading: ">=0.1"
+
+requires:
+  clis: [java, javap, mvn, python, uv]
+  repos: [shared-model]
+
+validators:
+  - bridge-kit validate request {inputs.mapping_request}
+  - bridge-kit validate mapping {outputs.mapping-spec} --model {repos.shared-model}/schemas
+
+approvals: []                        # writes only in the BA repo; never pushes or calls GitLab
+data: synthetic-only

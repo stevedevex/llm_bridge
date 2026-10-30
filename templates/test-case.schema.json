@@ -1,0 +1,95 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "TestCaseHeader",
+  "description": "The header of a test case written from templates/test-case.md (test-case@1).",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["template", "id", "case", "parent", "title", "status", "level", "type", "path", "technique", "priority",
+               "verifies", "environment", "automation"],
+  "properties": {
+    "template": { "const": "test-case@1", "description": "The template and its version." },
+    "id": {
+      "type": ["string", "null"],
+      "pattern": "^[A-Z][A-Z0-9]*-[0-9]+$",
+      "description": "The case's id in the test tool or GitLab once created; null until then."
+    },
+    "case": {
+      "type": "string",
+      "pattern": "^TC-[1-9][0-9]*$",
+      "description": "Its number in the work item, TC-<n>, unique there; it names the case until it has an id."
+    },
+    "parent": {
+      "type": "string",
+      "pattern": "^[A-Z][A-Z0-9]*-[0-9]+$",
+      "description": "The requirement the case belongs to."
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 120,
+      "description": "What it proves, as a statement of the behaviour: 'A customer with no preference says so'."
+    },
+    "status": {
+      "enum": ["draft", "approved", "created", "retired"],
+      "description": "draft until reviewed; approved by the BA and the tester; created in the test tool; retired when it no longer applies."
+    },
+    "level": {
+      "enum": ["component", "contract", "integration", "system", "end-to-end"],
+      "description": "Where it runs: one component on its own, one contract between two, two or more together, the whole system through its interface, or a user's journey across it."
+    },
+    "type": {
+      "enum": ["functional", "accessibility", "performance", "security", "data"],
+      "description": "What quality it checks; data is the data itself: completeness, mapping, lineage."
+    },
+    "path": {
+      "enum": ["happy", "alternate", "error"],
+      "description": "The criterion's main path, another valid one (none, empty, a different branch), or a failure."
+    },
+    "technique": {
+      "enum": ["equivalence", "boundary", "decision-table", "state-transition", "error-guessing"],
+      "description": "How the case was derived from its criteria."
+    },
+    "priority": {
+      "enum": ["high", "medium", "low"],
+      "description": "What a failure would cost: high blocks the requirement's purpose or loses or misstates data; medium degrades it with a workaround; low is cosmetic."
+    },
+    "verifies": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["story", "criteria"],
+        "properties": {
+          "story": {
+            "type": "string",
+            "pattern": "^[^@\\s]+\\.md(@[0-9a-f]{7,40})?$",
+            "description": "The story's file in the BA repo, pinned to a commit in a git checkout."
+          },
+          "criteria": {
+            "type": "array",
+            "minItems": 1,
+            "uniqueItems": true,
+            "items": { "type": "string", "pattern": "^AC-[1-9][0-9]*$" },
+            "description": "The story's acceptance criteria the case proves, by id."
+          }
+        }
+      },
+      "description": "The criteria it proves, by story."
+    },
+    "versions": {
+      "type": "object",
+      "additionalProperties": { "type": "string", "minLength": 1 },
+      "description": "The versions it was written against, by name: the model, each API. A newer one sends it back to draft."
+    },
+    "environment": { "enum": ["dev", "sit"], "description": "Where it runs. Never production." },
+    "automation": {
+      "enum": ["manual", "candidate", "automated"],
+      "description": "Run by hand, worth automating, or automated."
+    },
+    "automated_by": {
+      "type": ["string", "null"],
+      "description": "The automated test that runs it, by its path and name in its repo; null until there is one."
+    }
+  }
+}

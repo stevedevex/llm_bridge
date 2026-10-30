@@ -1,0 +1,42 @@
+# Governance for the Story Writer. Copilot never reads this; bridge-kit's validator does.
+# The agent itself is .github/agents/story-writer.agent.md, joined to this file by name.
+
+name: story-writer
+version: 0.1.6
+status: stable
+owner: ba-team
+layer: specialist
+domain: stories
+
+inputs:
+  - name: work_item
+    type: work-item
+  - name: impact
+    type: impact-analysis            # work/<id>/impact.md, from the Impact Analyzer
+  - name: package
+    type: requirement-package        # the files impact.md cites: model change, mapping specs, assembly spec
+    required: false
+
+outputs:
+  - path: work/*/stories/*.md
+    format: story@1
+
+stages: [R4]
+writes:
+  - work/*/stories/**
+  - .work/tmp/**
+
+skills:
+  story-writing: ">=0.2"
+  gitlab-reading: ">=0.1"
+  document-reading: ">=0.1"
+
+requires:
+  clis: [python, uv]
+  repos: [shared-model]
+
+validators:
+  - bridge-kit validate story {outputs.story}
+
+approvals: []                        # local mode only: writes files in the BA repo, never creates GitLab issues
+data: synthetic-only
