@@ -63,7 +63,8 @@ document becomes a new input.
 Once per BA repo, by the README's "Setting up a BA repo". First copy `bridge-kit.example.yaml` to
 `bridge-kit.yaml` and set its `environment`: every command runs inside it. Then the tools that draft the rest:
 `bridge-kit workspace scan` (the repos in `bridge-kit.yaml`), `/profile-model` (the model's conventions),
-`/profile-component` and `bridge-kit components build` (the component catalog), `/draft-glossary` (the glossary),
+`/profile-component`, `bridge-kit components build` and `bridge-kit components scan` (the component catalog, and
+what each component's team keeps for its own AI tools), `/draft-glossary` (the glossary),
 and `/reverse-engineer` (specs for existing code).
 
 ## The words BRIDGE uses

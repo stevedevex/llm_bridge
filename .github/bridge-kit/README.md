@@ -200,8 +200,11 @@ model's, or BRIDGE is exported into a BA repo that already exists, from a checko
 - [ ] `architecture/components.yaml`, from the components themselves:
   1. run `/profile-component` on each component's checkout;
   2. then `.github/bridge-kit/bin/bridge-kit components build --write`;
-  3. fill in what only people know (`stories`, a team, `defines_schemas`) from the profiles' Open questions, and have
-     an architect review it.
+  3. fill in what only people know (`repo`, `stories`, a team, `defines_schemas`) from the profiles' Open questions,
+     and have an architect review it;
+  4. then `.github/bridge-kit/bin/bridge-kit components scan --write`: it reads each component's own AI layer (the
+     instructions, skills, agents and prompts its team keeps) and adds `knowledge:` pointers by kind; check each one,
+     and point to a wiki page or another file where the team keeps it elsewhere.
 
   The Impact Analyzer, the Story Writer and the package check read it.
 - [ ] A glossary, `architecture/glossary/<area>.yaml`, from `templates/glossary.yaml`: the business terms BAs use,

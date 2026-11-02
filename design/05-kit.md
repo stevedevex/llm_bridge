@@ -9,8 +9,8 @@ lives in one place and a BA can run any check by hand.
 
 | Purpose | Commands |
 |---|---|
-| Set up and confirm | `preflight`, `workspace scan`, `components build`, `model profile`, `gitlab status`, `payload status` |
-| Read | `gitlab issue get` / `list` / `links`, `gitlab epic get`, `gitlab wiki list` / `get` / `search`, `doc read`, `spec resolve`, `spec digest`, `knowledge term`, `payload get` / `trace` / `check` / `profile` / `raw` |
+| Set up and confirm | `preflight`, `workspace scan`, `components build`, `components scan`, `model profile`, `gitlab status`, `payload status` |
+| Read | `gitlab issue get` / `list` / `links`, `gitlab epic get`, `gitlab wiki list` / `get` / `search`, `doc read`, `spec resolve`, `spec digest`, `knowledge term`, `knowledge show`, `payload get` / `trace` / `check` / `profile` / `raw` |
 | Keep as an input | `inputs add`: a story, a wiki page or a document, as the work item's next input |
 | Check | `validate digest` / `impact` / `model` / `request` / `mapping` / `story` / `test-case` / `package`, `knowledge check`, `tests coverage`, `work status` |
 | Change the model | `model start`, `model diff` |

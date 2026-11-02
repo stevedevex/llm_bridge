@@ -25,6 +25,7 @@ read those files, so nothing in BRIDGE itself changes.
 | `.github/bridge-kit/bridge-kit.yaml` | The repos and where they're checked out, their branch, remote and access; the shared model's repo, layout and conventions; GitLab's projects and wikis; the Maven repository for specs; stored payloads; the toolchain | Every command, the preflight |
 | `architecture/components.yaml` | The component catalog: each component's order, repo, stack, the contracts it owns and consumes, whether it faces external clients, where its stories go | The Impact Analyzer, the Story Writer, the package check, story publishing |
 | `architecture/components/<name>.md` | Each component's profile: what it does in business words, its data, contracts, screens or operations, and where changes go | The Impact Analyzer, the Story Writer, the Test Designer |
+| The catalog's `knowledge:` | Pointers, by kind, to what each component's team keeps for its own AI tools in its repo: its glossary, its lineage, its anatomy, its contract rules, its build and test recipes, its prompts and agents for each kind of change, its privacy rules, the builds it resolves, how it starts a change from a ticket | The agents, before the component's code, through `knowledge show` and `knowledge term` |
 | The shared model's `CONVENTIONS.md` | How the model is written: names, codes, lists, nulls, money, dates, versions | The Model Designer, `validate model` |
 | `architecture/glossary/<area>.yaml` | The business terms, each with its definition's source, its synonyms and its paths in the model | Every agent placing a business word, `knowledge term` |
 | `mappings/`, `lookups/`, `assembly/` | How each upstream operation fills the model, today | The Mapping Drafter, the Impact Analyzer, the package check |
@@ -53,6 +54,9 @@ review what it writes.
    `bridge-kit components build` merges the profiles into `architecture/components.yaml`, works out the order from
    the contracts (each owner before its consumers), and shows the diff; `--write` writes it. What only people know,
    such as the repo, the story project and the team, is set by hand and never overwritten.
+   Then `bridge-kit components scan` reads each component's own AI layer, the instructions, skills, agents and
+   prompts its team keeps in `.github/`, and proposes the catalog's `knowledge:` pointers by kind; `--write` adds them
+   to a component that has none, for people to review. The agents read that knowledge before the code.
 5. **The model.** `/profile-model` runs `bridge-kit model profile`, which reads the model's checkout and proposes its
    `layout` and `conventions` for `bridge-kit.yaml`, each with the share of fields that follow it. When the model has
    no `CONVENTIONS.md`, it drafts one for the model's owners.
@@ -97,6 +101,8 @@ because the catalog says it defines no schemas and its profile shows no use of c
 - **Each agent run starts with the preflight:** a checkout on the wrong branch or remote stops the run, and one behind
   its remote is reported. Nothing is fetched or pulled without the BA's OK.
 - **A component that changes gets its profile again,** and `components build` shows what that changes in the catalog.
+- **A team's own knowledge stays theirs:** the agents read its latest version from the checkout, and
+  `components scan` names any pointer whose file has moved.
 - **The glossary grows from the agents' questions:** a business word an agent can't place is asked, and the answer
   becomes a term.
 - **Reverse-engineered specs become ordinary ones** once a BA approves them, and new requirements change them the

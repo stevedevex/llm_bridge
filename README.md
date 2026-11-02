@@ -39,7 +39,8 @@ requirement in `work/`.
 2. **Write `bridge-kit.yaml`:** copy `.github/bridge-kit/bridge-kit.example.yaml` to
    `.github/bridge-kit/bridge-kit.yaml`, and name where the toolchain comes from first.
 3. **Describe the landscape,** in order: the repos (`bridge-kit workspace scan --write`), GitLab, the component
-   catalog (`/profile-component`, then `bridge-kit components build`), the shared model (`/profile-model`), the
+   catalog (`/profile-component`, `bridge-kit components build`, then `bridge-kit components scan` for what each
+   component's team keeps for its own AI tools), the shared model (`/profile-model`), the
    glossary (`/draft-glossary`), and the mapping specs of existing code (`/reverse-engineer`).
    [The landscape](design/01-landscape.md) describes each step.
 4. **Run `bridge-kit preflight`.** Once it passes, start a requirement with `/requirement <id>` in Copilot's chat.
