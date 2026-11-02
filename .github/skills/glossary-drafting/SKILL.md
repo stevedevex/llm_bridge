@@ -2,7 +2,7 @@
 name: glossary-drafting
 description: Step-by-step procedure for drafting a business area's glossary - the terms BAs use, each with its definition from a cited source, its synonyms and the internal model paths it means - from the model's titles and descriptions, the component profiles, the wiki, documents, mapping specs and lookups, by templates/glossary.yaml, checked with bridge-kit knowledge check. Use when setting up or growing architecture/glossary/<area>.yaml.
 metadata:
-  version: 0.1.0
+  version: 0.1.1
   owner: ba-team
 ---
 
@@ -33,6 +33,8 @@ From each source, the words BAs and the business use for the area's data, and wh
   gives, with the `document-reading` skill: definitions in the business's own words.
 - **The mapping specs and lookups** in the BA repo (`mappings/`, `lookups/`): the rule and the code table behind a
   field.
+- **The components' own glossaries,** the files the catalog points to as `glossary`: `bridge-kit knowledge term`
+  lists their matching lines. Their codes and acronyms become terms, each with its source (the component and file).
 
 ## 3. Write each term
 

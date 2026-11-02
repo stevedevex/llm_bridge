@@ -2,7 +2,7 @@
 name: story-writing
 description: Step-by-step procedure for writing a requirement package's user stories - one per affected component, from the story template, ordered contract first - from the work item's impact.md, the requirement and the package files it cites, against the component catalog and each component's profile. Covers which components get a story, the header (order, blocked_by, contracts, implements), each section's content, open questions, and checking the set with bridge-kit validate story. Use when writing or rewriting a work item's stories.
 metadata:
-  version: 0.2.2
+  version: 0.2.3
   owner: ba-team
 ---
 
@@ -32,6 +32,10 @@ pad a story: a team needs the facts, the contract changes and the criteria.
    - its screens or its operations;
    - its business terms and data;
    - how it's built and tested.
+
+   And each affected component's own knowledge, when the catalog points to it: `.github/bridge-kit/bin/bridge-kit
+   knowledge show <component>` lists it, and `knowledge show <component> playbooks` (or `privacy`, `intake`) reads
+   one kind.
 
    Use it for the facts a team needs in its story: the screen, the endpoint, the module the work is in, the test
    command. It never adds a component to the set or takes one out: `impact.md` decides that. When the profile and
@@ -94,9 +98,14 @@ Then the sections, in the template's order:
      or not, the API version, what external clients are told and when, and the API gateway change (or that there's
      none).
    - The UI: the screens and components, and the loading, empty and error states; accessibility.
+
+   When the component's `playbooks` name the team's own agents and prompts, say which fit this story's work, by
+   name ("the mapper builder, or `/update-mapping`"), and when its `intake` names how the team starts a change from a
+   ticket, say so: the team starts from its own tools.
 7. **Dependencies:** `- Blocked by:` and `- Blocks:`, each as references and components ("S1
    (shared-model)"), or "none".
-8. **Non-functional**, when something applies: personal data, performance, audit.
+8. **Non-functional**, when something applies: personal data, performance, audit; the rules the component's
+   `privacy` knowledge gives, when it touches what they cover.
 9. **Open questions:** every open question and every **low-confidence** item `impact.md` gives for this component,
    each naming who should answer. Never settle one yourself, and never write around it in another section. "None."
    when there's nothing.

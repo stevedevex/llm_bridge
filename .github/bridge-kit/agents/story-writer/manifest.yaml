@@ -2,7 +2,7 @@
 # The agent itself is .github/agents/story-writer.agent.md, joined to this file by name.
 
 name: story-writer
-version: 0.1.6
+version: 0.1.7
 status: stable
 owner: ba-team
 layer: specialist

@@ -76,3 +76,6 @@ What a component's team needs depends on its part in the system, as its profile 
 | A collecting service (`service-a-java`) | The upstream and the mapping specs involved, the assembly change, and what happens when the upstream fails |
 | A summary service (`service-b-python`) | The output sections affected, calculation or narrative, and the output schema version it consumes. Never a schema change: that's the shared model's story |
 | The shared model (`shared-model`) | The schema changes (additive or breaking), the version bump, and the consumers affected |
+
+Whatever its part, when the catalog points to the team's own agents and prompts (`knowledge: playbooks`), the
+section names the ones that fit the work, so the team starts from its own tools.

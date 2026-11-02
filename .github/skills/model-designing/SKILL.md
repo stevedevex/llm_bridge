@@ -2,7 +2,7 @@
 name: model-designing
 description: Step-by-step procedure for changing the internal data model (the JSON schemas every service shares) for a BA's requirement - finding what the model already has, placing, naming and typing new fields by the model's conventions, fixing a field in place, setting the version, listing the consumers a breaking change hits, and writing the merge request description. Use when changing the internal model, or checking whether it already holds some data.
 metadata:
-  version: 0.3.1
+  version: 0.3.2
   owner: ba-team
 ---
 
@@ -14,6 +14,10 @@ says how to apply them, never what they are, so read it first. Where its files a
 model` checks, are in `.github/bridge-kit/bridge-kit.yaml` (`model.layout`, `model.conventions`), set from the same
 CONVENTIONS. Where this skill names a rule, it's the kit's default, as an example: follow your model's. Its examples
 (`CustomerRecord`, `REQ-101`) use a made-up model.
+
+When the catalog points to the model component's own knowledge, read its `contracts` (what breaks a consumer) and
+`versions` too, with `.github/bridge-kit/bin/bridge-kit knowledge show <component> contracts`: its owners' rules
+stand beside CONVENTIONS, and where the two differ, ask under Open questions.
 
 ## 1. List what's asked
 

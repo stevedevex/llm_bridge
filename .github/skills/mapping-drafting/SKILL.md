@@ -2,7 +2,7 @@
 name: mapping-drafting
 description: Step-by-step procedure for drafting a mapping spec from a BA's mapping request, without code - listing the target's fields, reading the upstream's spec, its digest, a vendor jar or a database query, choosing each row's source, rule, If missing and lookup, taking the rows the BA's rough mapping settles, leaving the other business decisions to the BA as proposed rows with questions, and adding the target's assembly row. Use when drafting or redrafting a mapping spec for an upstream operation.
 metadata:
-  version: 0.5.1
+  version: 0.5.2
   owner: ba-team
 ---
 
@@ -25,6 +25,10 @@ every business decision left open with a clear question, never guessed. The form
    you write, and the row says how the upstream is called.
 4. Look at the reviewed specs in `mappings/` and their lookups for the way this team writes rows: Source roots,
    rule choices, lookups, notes. Copy the style, never the content.
+5. The collecting service's own knowledge, when the catalog points to it: its `glossary` (what the upstream's codes
+   mean) and `lineage` (which upstream already fills which field), with
+   `.github/bridge-kit/bin/bridge-kit knowledge show <component> <kind>`. It's the team's writing, not code: use it to
+   understand a code or a field, and still take every source from the spec.
 
 ## 2. Get the upstream's fields
 

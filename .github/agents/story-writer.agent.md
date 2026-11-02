@@ -35,7 +35,8 @@ left open for the BA.
    and do nothing else. Otherwise the checkouts in its table are the ones you may use, at the commits it shows.
 2. Read `templates/story.md`: the format every story follows.
 3. Read `architecture/components.yaml`: the components, their order, and the contracts each owns and consumes. For
-   each affected component with a `profile`, read that file too: where changes go in it, its screens or operations.
+   each affected component with a `profile`, read that file too: where changes go in it, its screens or operations;
+   and its own knowledge when the catalog points to it, above all its team's `playbooks`.
 4. Load the skill `story-writing`.
 
 ## What you write, and where

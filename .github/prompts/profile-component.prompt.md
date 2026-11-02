@@ -151,6 +151,7 @@ contracts:
   service's upstreams and mappings; a summary service's output; the shared model's schemas). A component that never
   decides a schema, only follows one, says so under Open questions, for the catalog's `defines_schemas: false`. When
   no part fits, say so there too.
+- **Where changes go:** when its own AI setup has a prompt or an agent for that kind of change, name it in the row.
 - **Proposed catalog entry:** keep exactly this shape, with only these fields: it's merged into the catalog as it is.
   Who owns the component and where its stories go aren't in it: people set those in the catalog, from the Open
   questions.

@@ -2,7 +2,7 @@
 name: impact-analysis
 description: Step-by-step procedure for working out which components a BA's requirement touches and how - turning its business words into data elements, following each one through every component in the catalog's order to find where it stops, placing changes that aren't about data by the components' profiles, classifying each contract change as additive or breaking, giving each a confidence, and writing work/<id>/impact.md from templates/impact.md. Use when analysing a requirement's impact, or checking whether a component is touched.
 metadata:
-  version: 0.1.1
+  version: 0.1.2
   owner: ba-team
 ---
 
@@ -33,6 +33,13 @@ state).
   `defines_schemas`.
 - Every component's profile: What it does and doesn't do, Business areas and data, Contracts, Screens or
   Operations, Where changes go, and Signs a requirement touches it.
+
+- Each component's own knowledge, when the catalog points to it (`knowledge:`): its team's `lineage` (who uses which
+  field, which upstream fills it) and `anatomy` (where each kind of change goes), read with
+  `.github/bridge-kit/bin/bridge-kit knowledge show <component> <kind>`, each as its own command. It's the team's own
+  writing: read it before the code, cite its file, and when it and the code disagree, the code wins. A read-only
+  agent among its `lineage` (an impact or usage tracer) can go deeper than this analysis: name it under Open
+  questions, for that team to run.
 
 A component without a profile is read from its checkout, when `bridge-kit.yaml` declares one, as the
 `/profile-component` prompt would: its README, build files, specs and entry points. Say so in its Why, and give it no

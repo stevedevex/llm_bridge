@@ -31,7 +31,7 @@ evidence doesn't settle it, a lower confidence and a question are worth more tha
 2. Read `.github/bridge-kit/bridge-kit.yaml`: the declared checkouts, and the model's repo (`model.repo`) and layout
    (`model.layout`).
 3. Read `templates/impact.md`, `architecture/components.yaml` and every component's profile, the file its entry names
-   under `profile`.
+   under `profile`, and its own knowledge when the catalog points to it (`knowledge:`).
 4. Load the skill `impact-analysis`, and `gitlab-reading` or `document-reading` when the requirement comes that way.
 
 ## What you write, and where
