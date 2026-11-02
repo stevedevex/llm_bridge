@@ -87,6 +87,7 @@ and `/reverse-engineer` (specs for existing code).
 | **Rough mapping** | Your own working mapping, a spreadsheet or a document, kept as an input; its rows are your decisions |
 | **Component catalog** | `architecture/components.yaml`: the components, the contracts each owns and consumes, their order |
 | **Component profile** | `architecture/components/<name>.md`: what a component does in business words, and where changes go |
+| **Component knowledge** | What a component's own team keeps for its AI tools (its glossary, its lineage, its prompts for each kind of change), pointed to from the catalog's `knowledge:` and read with `bridge-kit knowledge show` |
 | **Glossary** | `architecture/glossary/<area>.yaml`: the business terms BAs use, and the payload paths each means |
 | **Preflight** | `bridge-kit preflight`: whether the machine and every declared checkout are as `bridge-kit.yaml` says |
 | **Local mode** | The agents use the checkouts already beside the BA repo; they never clone, fetch or pull |

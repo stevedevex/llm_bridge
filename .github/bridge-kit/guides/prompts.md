@@ -32,7 +32,7 @@ already in GitLab is never created again.
 
 | Prompt | Use it to | Arguments | It writes |
 |---|---|---|---|
-| `/profile-component` | Read one component's repo and write its profile: what it does, its data, contracts, screens, where changes go | `<the component's folder>`; `<its name in the catalog>` | `architecture/components/<name>.md`, then `bridge-kit components build` assembles the catalog |
+| `/profile-component` | Read one component's repo and write its profile: what it does, its data, contracts, screens, where changes go | `<the component's folder>`; `<its name in the catalog>` | `architecture/components/<name>.md`, then `bridge-kit components build` assembles the catalog, and `bridge-kit components scan` points it to each team's own AI layer |
 | `/profile-model` | Propose the model's layout and conventions, with the evidence; draft its `CONVENTIONS.md` when it has none | `[the model's checkout]`, by default the one `bridge-kit.yaml` names | `.work/setup/model-profile.md`, and a draft `.work/setup/CONVENTIONS.md` for the model's owners |
 | `/draft-glossary` | Draft a business area's terms, each with its definition's source, its synonyms and its model paths | `<area>`, such as `customer-record`; `[where to look first]` | `architecture/glossary/<area>.yaml`, checked by `bridge-kit knowledge check` |
 

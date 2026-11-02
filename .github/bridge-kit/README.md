@@ -129,6 +129,60 @@ Maven repository for the spec resolver (`integrations.nexus.url`, after `--repos
 environment variable; else a mirror in `settings.xml`). `BRIDGE_KIT_REPO_ROOT` names the repo the kit works on, when
 it isn't the one the kit is in.
 
+## The component catalog
+
+`architecture/components.yaml`, at the BA repo's root, is the map the agents plan a requirement's stories by: the
+components, the contracts between them, and what each component's team keeps for its own AI tools. Each BA repo
+writes its own, for its own system: `bridge-kit export` never touches `architecture/`. The steps are in "Setting up a
+BA repo", below.
+
+| Field | Set by | Holds |
+|---|---|---|
+| `order` | `components build` | Where its story goes: each contract's owner before its consumers |
+| `summary`, `stack`, `owns`, `consumes`, `external` | `components build`, from the profile | What it does, its stack, the contracts it owns and uses, whether outside clients use them |
+| `profile` | `components build` | Its profile, `architecture/components/<name>.md`, written by `/profile-component` |
+| `repo` | People | Its repo, as `bridge-kit.yaml`'s `workspace.repos` names it, so the kit finds its checkout |
+| `stories` | People | The GitLab project and labels its stories go to |
+| `team`, `note` | People | Who owns it; anything else a reader needs |
+| `defines_schemas` | People | `false` for a component that follows the shared model and never decides a schema |
+| `knowledge` | `components scan --write` proposes, people confirm | Pointers, by kind, to what its team keeps for its own AI tools (below) |
+
+Under `contracts`, each contract's `kind` (`json-schema`, `openapi`, `wsdl`, `events`, `database`), its `source` (the
+component that owns it, set by the build) and, for a schema, its `root`.
+
+**Component knowledge.** Many component repos have an AI layer of their own in `.github/`: instructions, skills,
+agents and prompts, kept by their team. `components scan` lists it and proposes pointers; each pointer is a path in the
+component's checkout, a list of them, or `wiki:<page>`:
+
+```yaml
+components:
+  service-a-java:
+    repo: service-a-java
+    knowledge:
+      glossary: .github/skills/domain-glossary/SKILL.md
+      anatomy: .github/skills/collector-anatomy/SKILL.md
+      privacy: .github/skills/audit-redaction/SKILL.md
+      playbooks: [.github/agents/mapper-builder.agent.md, .github/prompts/update-mapping.prompt.md]
+      intake: .github/prompts/write-spec.prompt.md
+```
+
+| Kind | What it points to | Read by |
+|---|---|---|
+| `glossary` | The team's words: its codes, acronyms and terms | `knowledge term`, `/draft-glossary`, every agent placing a business word |
+| `lineage` | Who uses which field, and which upstream fills it; a read-only impact or usage tracer | The Impact Analyzer, the Mapping Drafter |
+| `anatomy` | How the code is laid out, and where each kind of change goes | The Impact Analyzer, the Story Writer |
+| `contracts` | What breaks a consumer, and how the generated code differs | The Model Designer, the Impact Analyzer |
+| `build-and-test` | How it's built and tested | The profile, the Test Designer |
+| `playbooks` | The team's agents and prompts for each kind of change | The Story Writer, which names them in each story |
+| `privacy` | Redaction and sensitive-field rules | The Story Writer's non-functional section, the Model Designer |
+| `versions` | The builds of the model and libraries it resolves | The Impact Analyzer, the Model Designer |
+| `intake` | How the team starts a change from a ticket | The Story Writer |
+| `other` | Anything else worth reading | Whoever it's for |
+
+`bridge-kit knowledge show <component> [<kind>]` reads them from the checkout. The agents read a component's knowledge
+before its code, and the code wins when the two disagree. A pointer whose file has moved is named by the next
+`components scan`; point it again.
+
 ## Setting up a BA repo
 
 This is what it takes, in local mode, before the first agent runs on real checkouts.

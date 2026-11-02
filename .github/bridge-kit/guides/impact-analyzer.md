@@ -9,7 +9,7 @@ out surprises a team late, and one wrongly put in is a story nobody needs.
 | **Start it** | `/impact <id>` |
 | **`<id>`** | The work item, such as `REQ-101` |
 | **Before you run it** | The requirement as an input (`work/<id>/inputs/`), or a GitLab story you name; the component catalog (`architecture/components.yaml`) and the components' profiles |
-| **It reads** | The requirement and what the work item already has (a model change, mapping requests, digests); the catalog, every component's profile, the shared model; the declared checkouts, read-only |
+| **It reads** | The requirement and what the work item already has (a model change, mapping requests, digests); the catalog, every component's profile and own knowledge (its team's lineage and anatomy, first), the shared model; the declared checkouts, read-only |
 | **It writes** | `work/<id>/impact.md`, by `templates/impact.md` |
 | **It checks with** | `bridge-kit validate impact <id>` |
 | **You decide** | Which components really change, every item below high confidence, every open question |

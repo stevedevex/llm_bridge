@@ -9,7 +9,7 @@ order the work can be done. A team builds from its story, so it states facts and
 | **Start it** | `/write-stories <id>` |
 | **`<id>`** | The work item, such as `REQ-101` |
 | **Before you run it** | `work/<id>/impact.md`, passing `bridge-kit validate impact <id>`; the package files it cites (the model change, mapping specs, the assembly spec) |
-| **It reads** | The requirement; `impact.md` and every file it cites; the component catalog and each affected component's profile; a GitLab story or documents you name |
+| **It reads** | The requirement; `impact.md` and every file it cites; the component catalog, each affected component's profile and its team's own knowledge; a GitLab story or documents you name |
 | **It writes** | `work/<id>/stories/<component>-<nn>-<slug>.md`, one per affected component, `<nn>` its order |
 | **It checks with** | `bridge-kit validate story work/<id>/stories` |
 | **You decide** | Each story's approval; every open question it carries over from `impact.md` |
@@ -25,6 +25,8 @@ order the work can be done. A team builds from its story, so it states facts and
 
 ## Tips
 
+- When the catalog points to a team's own agents and prompts (`knowledge: playbooks`), its story names the ones that
+  fit the work, so the team starts from its own tools.
 - Its components are exactly `impact.md`'s Affected components: to change the set, change `impact.md`.
 - A low-confidence item or an open question in `impact.md` comes through to the story's Open questions; a story
   isn't approved while they're open.
