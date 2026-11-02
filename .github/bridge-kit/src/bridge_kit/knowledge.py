@@ -89,14 +89,18 @@ class Found:
     terms: list[Term] = field(default_factory=list)
     fields: list[tuple[str, str]] = field(default_factory=list)  # (path, description)
     profiles: list[tuple[str, str, str]] = field(default_factory=list)  # (component, term, what it is there)
+    teams: list[tuple[str, str, str]] = field(default_factory=list)  # (component, its glossary's file, the line)
 
     def to_dict(self) -> dict:
         return {"terms": [t.__dict__ for t in self.terms],
                 "fields": [{"path": p, "description": d} for p, d in self.fields],
-                "profiles": [{"component": c, "term": t, "there": w} for c, t, w in self.profiles]}
+                "profiles": [{"component": c, "term": t, "there": w} for c, t, w in self.profiles],
+                "teams": [{"component": c, "file": f, "line": line} for c, f, line in self.teams]}
 
 
-def find_term(query: str, repo: Path, model=None) -> Found:
+def find_term(query: str, repo: Path, model=None, teams: list[tuple[str, Path]] = ()) -> Found:
+    """The glossary's terms, then the model's fields, the profiles' business terms, and the lines of the components'
+    own glossaries (`teams`: each component and the glossary file its catalog entry points to)."""
     found = Found()
     terms = load_glossary(repo)
     exact = [t for t in terms if query.strip().lower() in [t.name.lower(), *(s.lower() for s in t.synonyms)]]
@@ -111,7 +115,12 @@ def find_term(query: str, repo: Path, model=None) -> Found:
         for term, there in _profile_terms(profile.read_text(encoding="utf-8")):
             if _matches(query, term):
                 found.profiles.append((profile.stem, term, there))
+    for component, file in teams:
+        for line in file.read_text(encoding="utf-8", errors="replace").splitlines():
+            if _matches(query, line):
+                found.teams.append((component, file.name, " ".join(line.strip("|-* ").split())[:200]))
     found.terms, found.fields, found.profiles = found.terms[:SHOWN], found.fields[:SHOWN], found.profiles[:SHOWN]
+    found.teams = found.teams[:SHOWN]
     return found
 
 
@@ -139,9 +148,12 @@ def format_found(query: str, found: Found) -> str:
         lines += ["Model fields:"] + [f"  {path}: {description}".rstrip(": ") for path, description in found.fields]
     if found.profiles:
         lines += ["Profiles:"] + [f"  {component}: {term}: {there}" for component, term, there in found.profiles]
+    if found.teams:
+        lines += ["The components' own glossaries:"] + [f"  {component} ({file}): {line}"
+                                                         for component, file, line in found.teams]
     if not lines:
-        return (f"Nothing matches \"{query}\": not in the glossary, the model's fields or the profiles. Ask the BA what "
-                "it means, and add it to architecture/glossary/ once it's settled.\n")
+        return (f"Nothing matches \"{query}\": not in the glossary, the model's fields, the profiles or the components' "
+                "own glossaries. Ask the BA what it means, and add it to architecture/glossary/ once it's settled.\n")
     return "\n".join(lines) + "\n"
 
 

@@ -164,7 +164,8 @@ def build_parser() -> argparse.ArgumentParser:
     add.add_argument("--json", action="store_true", help="Output JSON")
     add.set_defaults(handler=_inputs_add)
 
-    knowledge = commands.add_parser("knowledge", help="The component knowledge: the glossary of business terms")
+    knowledge = commands.add_parser("knowledge", help="The component knowledge: the glossary of business terms, and "
+                                                      "what the components' own teams have written down")
     knowledge_actions = knowledge.add_subparsers(dest="action", required=True)
     term = knowledge_actions.add_parser("term", help="What a business term means in the model: the glossary, the "
                                                      "model's fields, the profiles")
@@ -175,6 +176,13 @@ def build_parser() -> argparse.ArgumentParser:
                                                        "element a path of the model")
     check.add_argument("--json", action="store_true", help="Output JSON")
     check.set_defaults(handler=_knowledge_check)
+    show = knowledge_actions.add_parser("show", help="A component's own knowledge the catalog points to: its pointers, "
+                                                     "or what one kind's point to")
+    show.add_argument("component", help="The component, as architecture/components.yaml names it")
+    show.add_argument("kind", nargs="?", help="glossary, lineage, anatomy, contracts, build-and-test, playbooks, "
+                                              "privacy, versions, intake or other")
+    show.add_argument("--json", action="store_true", help="Output JSON")
+    show.set_defaults(handler=_knowledge_show)
 
     work = commands.add_parser("work", help="Work items")
     work_actions = work.add_subparsers(dest="action", required=True)
@@ -212,6 +220,14 @@ def build_parser() -> argparse.ArgumentParser:
     components_build.add_argument("--write", action="store_true", help="Write the catalog, when nothing's wrong")
     components_build.add_argument("--json", action="store_true", help="Output JSON")
     components_build.set_defaults(handler=_components_build)
+    components_scan = components_actions.add_parser(
+        "scan", help="Each declared checkout's own AI layer (.github: instructions, skills, agents, prompts), the kind "
+                     "of knowledge each item holds, and the catalog's knowledge pointers it proposes or finds broken")
+    components_scan.add_argument("component", nargs="?", help="Only this component")
+    components_scan.add_argument("--write", action="store_true",
+                                 help="Add the proposed pointers to each component the catalog has no knowledge for")
+    components_scan.add_argument("--json", action="store_true", help="Output JSON")
+    components_scan.set_defaults(handler=_components_scan)
 
     doc = commands.add_parser("doc", help="Documents a BA brings, as Markdown")
     doc_actions = doc.add_subparsers(dest="action", required=True)
@@ -539,9 +555,51 @@ def _knowledge_term(args: argparse.Namespace) -> int:
     from bridge_kit.knowledge import find_term, format_found
     from bridge_kit.paths import repo_root
 
-    found = find_term(args.words, repo_root(), _optional_model())
+    from bridge_kit.component_knowledge import team_glossaries
+    from bridge_kit.config import ConfigError, load_config
+
+    try:
+        config = load_config()
+    except ConfigError:
+        config = None
+    found = find_term(args.words, repo_root(), _optional_model(), team_glossaries(repo_root(), config))
     print(json.dumps(found.to_dict(), indent=2) if args.json else format_found(args.words, found), end="")
     return 0
+
+
+def _knowledge_show(args: argparse.Namespace) -> int:
+    from bridge_kit.component_knowledge import show
+    from bridge_kit.config import ConfigError, load_config
+    from bridge_kit.paths import repo_root
+
+    try:
+        text, code = show(repo_root(), load_config(), args.component, args.kind)
+    except ConfigError as e:
+        print(e, file=sys.stderr)
+        return 2
+    print(json.dumps({"component": args.component, "kind": args.kind, "text": text}, indent=2) if args.json else text,
+          end="" if not args.json else "\n")
+    return code
+
+
+def _components_scan(args: argparse.Namespace) -> int:
+    from bridge_kit.component_knowledge import render, scan, write_proposed
+    from bridge_kit.config import ConfigError, load_config
+    from bridge_kit.paths import repo_root
+
+    try:
+        results = scan(repo_root(), load_config(), args.component)
+    except ConfigError as e:
+        print(e, file=sys.stderr)
+        return 2
+    added = write_proposed(repo_root(), results) if args.write else []
+    if args.json:
+        print(json.dumps({"components": [r.to_dict() for r in results], "written": added}, indent=2))
+    else:
+        print(render(results), end="")
+        if added:
+            print(f"Added knowledge to {', '.join(added)} in architecture/components.yaml: review it")
+    return 1 if any(r.broken for r in results) else 0
 
 
 def _knowledge_check(args: argparse.Namespace) -> int:

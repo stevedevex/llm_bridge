@@ -3,8 +3,8 @@ profiles, `architecture/components/<name>.md`, which the `/profile-component` pr
 
 - Each profile's proposed entry (the YAML block under "Proposed catalog entry") is merged into its component's entry:
   the `summary`, `stack`, `owns`, `consumes` and `external` it gives replace the catalog's, and `profile` names the
-  file. What only people set (`repo`, `stories`, `team`, `defines_schemas`, `note`) is never touched; a profile that
-  gives it is told so. The contracts it owns gain the `kind`, `file` and `root` it gives.
+  file. What only people set (`repo`, `stories`, `team`, `defines_schemas`, `knowledge`, `note`) is never touched; a
+  profile that gives it is told so. The contracts it owns gain the `kind`, `file` and `root` it gives.
 - What no profile can say alone: `order`, from the contracts (each contract's owner before its consumers; otherwise as
   before, then by name), and each contract's owner, its `source`.
 - Checks: a profile whose block isn't the catalog's shape (an error, and it isn't merged); a contract owned twice, or
@@ -30,9 +30,9 @@ from bridge_kit.validators import Finding
 CATALOG = Path("architecture") / "components.yaml"
 PROFILES = Path("architecture") / "components"
 FROM_PROFILE = ("summary", "stack", "owns", "consumes", "external")
-FROM_PEOPLE = ("repo", "stories", "team", "defines_schemas", "note")
+FROM_PEOPLE = ("repo", "stories", "team", "defines_schemas", "knowledge", "note")
 COMPONENT_KEYS = ("order", "summary", "repo", "stack", "owns", "consumes", "external", "defines_schemas", "stories",
-                  "team", "profile", "note")
+                  "team", "knowledge", "profile", "note")
 CONTRACT_KEYS = ("kind", "source", "root", "file", "external", "note")
 HEADER = ("# The components and their contracts: the map the requirement agents use to work out which components a\n"
           "# requirement touches and in what order their stories go. Built from the components'\n"

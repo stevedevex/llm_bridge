@@ -65,7 +65,8 @@ def test_a_term_nothing_knows(repo):
     found = find_term("monkey business", repo)
 
     assert format_found("monkey business", found).startswith(
-        "Nothing matches \"monkey business\": not in the glossary, the model's fields or the profiles. Ask the BA")
+        "Nothing matches \"monkey business\": not in the glossary, the model's fields, the profiles or the "
+        "components' own glossaries. Ask the BA")
 
 
 def test_a_term_with_no_data_element_is_a_warning(repo):
